@@ -1,13 +1,15 @@
 import type { ReactElement } from 'react'
 import 'bootstrap/dist/css/bootstrap.css'
+import Link from 'next/link'
+import Image from 'next/image'
 
 function Signup (): ReactElement {
   return (
     <div>
       <div className='d-flex'>
         <div className='position-position-relative' style={{ width: '50%', height: '100vh', backgroundImage: 'url("/Assets/bgLogin.png")' }}>
-          <img src='/Assets/logoTiketku.png' alt='' className='position-absolute' style={{ width: '264px', height: '146px', top: '130px', left: '85px' }} />
-          <img src='/Assets/bgFlower.png' alt='' className='position-absolute' style={{ width: '719px', height: '498px', bottom: '50px' }} />
+          <Image src='/Assets/logoTiketku.png' alt='' className='position-absolute' style={{ width: '264px', height: '146px', top: '130px', left: '85px' }} />
+          <Image src='/Assets/bgFlower.png' alt='' className='position-absolute' style={{ width: '719px', height: '498px', bottom: '50px' }} />
         </div>
         <div className='d-flex align-items-center justify-content-center' style={{ width: '50%', height: '100vh' }}>
           <div>
@@ -118,9 +120,9 @@ function Signup (): ReactElement {
               </button>
               <p className='text-center' style={{ fontWeight: '400', fontSize: '14px', lineHeight: '20px', color: '#000' }}>
                   Sudah punya akun?{' '}
-                <a href='/auth/Login' style={{ fontWeight: '700', fontSize: '14px', lineHeight: '20px', color: '#7126B5', textDecoration: 'none' }}>
+                <Link href='/auth/Login' style={{ fontWeight: '700', fontSize: '14px', lineHeight: '20px', color: '#7126B5', textDecoration: 'none' }}>
                     Masuk di sini
-                </a>
+                </Link>
               </p>
             </form>
           </div>
