@@ -7,9 +7,9 @@ function Signup (): ReactElement {
   return (
     <div>
       <div className='d-flex'>
-        <div className='position-position-relative' style={{ width: '50%', height: '100vh', backgroundImage: 'url("/Assets/bgLogin.png")' }}>
-          <Image src='/Assets/logoTiketku.png' alt='' className='position-absolute' style={{ width: '264px', height: '146px', top: '130px', left: '85px' }} />
-          <Image src='/Assets/bgFlower.png' alt='' className='position-absolute' style={{ width: '719px', height: '498px', bottom: '50px' }} />
+        <div className='position-relative' style={{ width: '50%', height: '100vh', backgroundImage: 'url("/Assets/bgLogin.png")' }}>
+          <Image src='/assets/logoTiketku.png' width={264} height={146} alt='' className='position-absolute img-fluid' style={{ top: '130px', left: '85px' }} />
+          <Image src='/assets/bgFlower.png' width={719} height={498} alt='' className='position-absolute img-fluid' style={{ bottom: '50px' }} />
         </div>
         <div className='d-flex align-items-center justify-content-center' style={{ width: '50%', height: '100vh' }}>
           <div>
