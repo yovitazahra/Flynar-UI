@@ -75,7 +75,7 @@ const Login = (): ReactElement => {
               </button>
               <p className='text-center' style={{ fontWeight: '400', fontSize: '14px', lineHeight: '20px', color: '#000' }}>
                 Belum punya akun?{' '}
-                <Link href='/auth/Signup' style={{ fontWeight: '700', fontSize: '14px', lineHeight: '20px', color: '#7126B5', textDecoration: 'none' }}>
+                <Link href='/auth/register' style={{ fontWeight: '700', fontSize: '14px', lineHeight: '20px', color: '#7126B5', textDecoration: 'none' }}>
                   Daftar di sini
                 </Link>
               </p>

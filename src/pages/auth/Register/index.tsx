@@ -120,7 +120,7 @@ function Signup (): ReactElement {
               </button>
               <p className='text-center' style={{ fontWeight: '400', fontSize: '14px', lineHeight: '20px', color: '#000' }}>
                   Sudah punya akun?{' '}
-                <Link href='/auth/Login' style={{ fontWeight: '700', fontSize: '14px', lineHeight: '20px', color: '#7126B5', textDecoration: 'none' }}>
+                <Link href='/auth/login' style={{ fontWeight: '700', fontSize: '14px', lineHeight: '20px', color: '#7126B5', textDecoration: 'none' }}>
                     Masuk di sini
                 </Link>
               </p>
