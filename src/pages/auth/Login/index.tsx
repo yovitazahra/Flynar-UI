@@ -16,7 +16,7 @@ const Login = (): ReactElement => {
       <div className='d-flex'>
         <div className='position-relative w-100 d-none w-md-50 d-lg-block' style={{ height: '100vh', backgroundImage: 'linear-gradient(to bottom, #D0B7E6, #E2D4F0)' }}>
           <Image src='/assets/logoFlynarbaru.png' width={264} height={146} alt='' className='position-absolute img-fluid' style={{ top: '11%', left: '7%' }} />
-          <Image src='/assets/bgFlower.png' width={719} height={498} alt='' className='position-absolute' style={{ bottom: '50px' }} />
+          <Image src='/assets/bgFlower.png' width={719} height={498} alt='' className='position-absolute img-fluid' style={{ bottom: '50px' }} />
         </div>
         <div className='d-flex align-items-center justify-content-center w-100 w-md-50' style={{ height: '100vh' }}>
           <div className='w-100' style={{ padding: '0 20%' }}>
