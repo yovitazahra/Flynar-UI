@@ -7,7 +7,7 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
 
-function Signup (): ReactElement {
+function Register (): ReactElement {
   const [showPassword, setShowPassword] = useState(false)
 
   const togglePasswordVisibility = () => {
@@ -224,4 +224,4 @@ function Signup (): ReactElement {
   )
 }
 
-export default Signup
+export default Register
