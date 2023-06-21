@@ -3,7 +3,7 @@ import React, { ReactElement, FormEvent, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.css'
 import Link from 'next/link'
 import Image from 'next/image'
-import axios from 'axios';
+import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
 
