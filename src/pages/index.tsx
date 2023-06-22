@@ -3,7 +3,7 @@ import DefaultLayout from '@/layouts/default'
 
 const Home = (): ReactElement => {
   return (
-    <main>
+    <main className='flex flex-col p-6 container m-auto'>
       <p>Welcome to Flynar</p>
     </main>
   )
