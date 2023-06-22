@@ -1,5 +1,5 @@
-// import type { ReactElement } from 'react'
-import React, { ReactElement, FormEvent, useState } from 'react';
+import React, { useState } from 'react'
+import type { ReactElement, FormEvent } from 'react'
 import 'bootstrap/dist/css/bootstrap.css'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -10,29 +10,30 @@ import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
 function Register (): ReactElement {
   const [showPassword, setShowPassword] = useState(false)
 
-  const togglePasswordVisibility = () => {
+  const togglePasswordVisibility = (): void => {
     setShowPassword(!showPassword)
   }
 
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
-  
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
 
-    const name = (e.currentTarget.elements.namedItem('name') as HTMLInputElement).value;
-    const email = (e.currentTarget.elements.namedItem('email') as HTMLInputElement).value;
-    const password = (e.currentTarget.elements.namedItem('password') as HTMLInputElement).value;
-    const phoneNumber = (e.currentTarget.elements.namedItem('phoneNumber') as HTMLInputElement).value;
-
-    if (!name || !email || !password || !phoneNumber) {
+    if (name === '' || email === '' || password === '' || phoneNumber === '') {
       setErrorMessage('Mohon lengkapi semua data')
-      return
     }
-    
+
+    if (isNaN(parseInt(phoneNumber))) {
+      setErrorMessage('Nomor Telepon Wajib Angka')
+    }
+
     if (password.length < 8) {
       setErrorMessage('Password harus terdiri dari minimal 8 karakter')
-      return
     }
 
     try {
@@ -40,22 +41,22 @@ function Register (): ReactElement {
         name,
         email,
         password,
-        phoneNumber,
+        phoneNumber
       })
 
       setSuccessMessage('Registrasi berhasil!')
-      console.log(response.data);
+      console.log(response.data)
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        if (error.response && error.response.data && error.response.data.message) {
-          setErrorMessage(error.response.data.message);
+        if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
+          setErrorMessage(error.response.data.message)
         } else {
-          setErrorMessage('Terjadi kesalahan pada proses registrasi');
+          setErrorMessage('Terjadi kesalahan pada proses registrasi')
         }
-        console.error(error);
+        console.error(error)
       } else {
         // Error bukan dari Axios
-        console.error(error);
+        console.error(error)
       }
     }
   }
@@ -72,7 +73,7 @@ function Register (): ReactElement {
             <div className='d-flex justify-content-center'>
               <Image src='/assets/logoFlynarbaru.png' width={200} height={200} alt='' className='img-fluid d-block d-lg-none' />
             </div>
-            <form action='' onSubmit={ handleSubmit } style={{ width: '110%', height: 'fit-content' }}>
+            <form action='' onSubmit={(e) => { void handleSubmit(e) } } style={{ width: '110%', height: 'fit-content' }}>
               <h5 style={{ fontWeight: '700', fontSize: '24px', lineHeight: '36px', marginBottom: '24px' }}>Daftar</h5>
               <div className='name' style={{ marginBottom: '16px' }}>
                 <div className='mb-1'>
@@ -85,6 +86,7 @@ function Register (): ReactElement {
                   placeholder='Nama lengkap'
                   id='name'
                   className='formNama'
+                  onChange={(e) => { setName(e.target.value) }}
                   style={{
                     width: '100%',
                     height: '48px',
@@ -110,6 +112,7 @@ function Register (): ReactElement {
                   placeholder='Contoh: johndoe@gmail.com'
                   id='email'
                   className='formEmail'
+                  onChange={(e) => { setEmail(e.target.value) }}
                   style={{
                     width: '100%',
                     height: '48px',
@@ -135,6 +138,7 @@ function Register (): ReactElement {
                   placeholder='08...'
                   id='phoneNumber'
                   className='formNoTlp'
+                  onChange={(e) => { setPhoneNumber(e.target.value) }}
                   style={{
                     width: '100%',
                     height: '48px',
@@ -160,6 +164,7 @@ function Register (): ReactElement {
                   placeholder='Buat password'
                   id='password'
                   className='formPass'
+                  onChange={(e) => { setPassword(e.target.value) }}
                   style={{
                     width: '100%',
                     height: '48px',
@@ -169,7 +174,7 @@ function Register (): ReactElement {
                     padding: '12px 16px',
                     outline: 'none',
                     border: '1px solid #D0D0D0',
-                    borderRadius: '16px',
+                    borderRadius: '16px'
                   }}
                 />
                 <button
@@ -180,14 +185,13 @@ function Register (): ReactElement {
                     position: 'absolute',
                     top: '50%',
                     right: '10px',
-                    border: 'none',
+                    border: 'none'
                   }}
                 >
-                  {showPassword ? (
-                    <FontAwesomeIcon icon={faEye} />
-                  ) : (
-                    <FontAwesomeIcon icon={faEyeSlash} />
-                  )}
+                  {showPassword
+                    ? (<FontAwesomeIcon icon={faEye} />)
+                    : (<FontAwesomeIcon icon={faEyeSlash} />
+                    )}
                 </button>
               </div>
               <button
@@ -214,8 +218,8 @@ function Register (): ReactElement {
                     Masuk di sini
                 </Link>
               </p>
-            {errorMessage && <p className='text-center text-white p-2 bg-danger rounded-4 w-100'>{errorMessage}</p>}
-            {successMessage && <p className='text-center text-white p-2 bg-success rounded-4 w-100'>{successMessage}</p>}
+              {errorMessage !== '' && <p className='text-center text-white p-2 bg-danger rounded-4 w-100'>{errorMessage}</p>}
+              {successMessage !== '' && <p className='text-center text-white p-2 bg-success rounded-4 w-100'>{successMessage}</p>}
             </form>
           </div>
         </div>
