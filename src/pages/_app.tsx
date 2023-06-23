@@ -8,7 +8,7 @@ type Props = AppProps & {
   Component: Page
 }
 
-export default function App ({ Component, pageProps }: Props): ReactElement {
+const App = ({ Component, pageProps }: Props): ReactElement => {
   const getLayout = Component.getLayout ?? (page => page)
   const Layout = Component.layout ?? Fragment
   return (
@@ -17,3 +17,5 @@ export default function App ({ Component, pageProps }: Props): ReactElement {
     </Layout>
   )
 }
+
+export default App

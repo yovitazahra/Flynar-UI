@@ -1,7 +1,7 @@
 import { Html, Head, Main, NextScript } from 'next/document'
 import type { ReactElement } from 'react'
 
-export default function Document (): ReactElement {
+const Document = (): ReactElement => {
   return (
     <Html lang='en'>
       <Head />
@@ -12,3 +12,5 @@ export default function Document (): ReactElement {
     </Html>
   )
 }
+
+export default Document
