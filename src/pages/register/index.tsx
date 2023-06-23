@@ -63,7 +63,7 @@ const Register = (): ReactElement => {
       })
       setSuccessMessage('Registrasi berhasil')
       setTimeout(() => {
-        redirect('/login')
+        redirect('/verify-otp')
       }, 1000)
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
