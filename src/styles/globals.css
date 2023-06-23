@@ -7,3 +7,15 @@
   padding: 0;
   box-sizing: border-box;
 }
+
+textarea:focus, input:focus{
+  outline: none;
+}
+
+.wrong-input, .wrong-input:focus {
+  outline: 1px red solid;
+}
+
+input::-ms-reveal, input::-ms-clear {
+  display: none;
+}

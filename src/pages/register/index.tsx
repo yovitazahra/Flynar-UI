@@ -1,12 +1,15 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import type { ReactElement, FormEvent } from 'react'
+import Head from 'next/head'
 import Link from 'next/link'
 import Image from 'next/image'
 import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
+import AuthPageLayout from '@/layouts/auth'
+import isEmailValid from '@/utils/isEmailValid'
 
-function Register (): ReactElement {
+const Register = (): ReactElement => {
   const [showPassword, setShowPassword] = useState(false)
 
   const togglePasswordVisibility = (): void => {
@@ -21,23 +24,35 @@ function Register (): ReactElement {
   const [password, setPassword] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
 
+  useEffect(() => {
+    if (errorMessage !== '') {
+      setErrorMessage('')
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, email, password, phoneNumber])
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
 
     if (name === '' || email === '' || password === '' || phoneNumber === '') {
-      setErrorMessage('Mohon lengkapi data')
+      setErrorMessage('Mohon Lengkapi Data')
+      return
     }
 
     if (isNaN(parseInt(phoneNumber))) {
       setErrorMessage('Nomor Telepon Wajib Angka')
+      return
     }
 
     if (password.length < 8) {
-      setErrorMessage('Password harus terdiri dari minimal 8 karakter')
+      setErrorMessage('Password Minimal 8 Karakter')
+      return
     }
 
-    setIsLoading(true)
     try {
+      setIsLoading(true)
+      setErrorMessage('')
+      setSuccessMessage('')
       const response = await axios.post('http://localhost:8000/api/v1/register', {
         name,
         email,
@@ -45,8 +60,7 @@ function Register (): ReactElement {
         phoneNumber
       })
 
-      setSuccessMessage('Registrasi berhasil!')
-      console.log(response.data)
+      setSuccessMessage('Registrasi berhasil')
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
@@ -64,84 +78,84 @@ function Register (): ReactElement {
   }
 
   return (
-    <div>
-      <div>
-        <div style={{ backgroundImage: 'linear-gradient(to bottom, #D0B7E6, #E2D4F0)' }}>
-          <Image src='/assets/logoFlynarbaru.png' width={264} height={146} alt=''/>
-          <Image src='/assets/bgFlower.png' width={719} height={498} alt=''/>
-        </div>
-        <div>
-          <div>
-            <div>
-              <Image src='/assets/logoFlynarbaru.png' width={200} height={200} alt='Flynar Logo'/>
-            </div>
-            <form action='' onSubmit={(e) => { void handleSubmit(e) } }>
-              <h5>Daftar</h5>
-              <div>
-                <div>
-                  <label htmlFor='name'>Nama</label>
+    <>
+      <Head>
+        <title>Sign Up</title>
+        <meta name='description' content='Sign up to flynar website' />
+        <meta name='viewport' content='initial-scale=1.0, width=device-width' />
+      </Head>
+      <div id='register-page'>
+        <div className='flex h-screen overflow-hidden'>
+          <div className='hidden lg:w-1/2 lg:relative lg:flex lg:px-8'>
+            <Image src='/images/auth-background.png' fill={true} loading='lazy' alt='Auth Page Background' className='object-cover'/>
+            <Image src='/images/flynar-logo.png' width={200} height={200} loading='lazy' alt='Flynar Logo' className='absolute bottom-0'/>
+          </div>
+          <div className='w-full h-full flex px-6 py-4 lg:p-0 lg:w-1/2'>
+            <div className='m-auto w-full md:w-3/6 lg:w-4/6'>
+              <form action='' autoComplete='off' onSubmit={(e) => { void handleSubmit(e) } }>
+                <h5 className='text-2xl leading-9 mb-6 font-bold'>Daftar</h5>
+                <div className='flex flex-col gap-y-3 text-sm'>
+                  <div className='flex flex-col gap-y-2'>
+                    <label htmlFor='name'>Nama</label>
+                    <input type='text' autoComplete='off' autoCorrect='false' placeholder='Nama Lengkap' id='name' className='border rounded-2xl px-4 py-3' onChange={(e) => { setName(e.target.value) }}/>
+                  </div>
+                  <div className='flex flex-col gap-y-2'>
+                    <label htmlFor='email'>Email</label>
+                    <input type='text' autoComplete='off' autoCorrect='false' placeholder='Contoh: johndoe@gmail.com' id='email' className={`${isEmailValid(email) === null && 'wrong-input'} border rounded-2xl px-4 py-3`} onChange={(e) => { setEmail(e.target.value) }}/>
+                  </div>
+                  <div className='flex flex-col gap-y-2'>
+                    <label htmlFor='phoneNumber'>Nomor Telepon</label>
+                    <input type='text' autoComplete='off' autoCorrect='false' placeholder='08...' id='phoneNumber' className={`${isNaN(parseInt(phoneNumber)) && phoneNumber.length > 0 && 'wrong-input'} border rounded-2xl px-4 py-3`} onChange={(e) => { setPhoneNumber(e.target.value) }}/>
+                  </div>
+                  <div className='flex flex-col gap-y-2'>
+                    <label htmlFor='password'>Password</label>
+                    <div className='flex justify-between relative'>
+                      <input type={showPassword ? 'text' : 'password'} placeholder='Buat password' id='password' className={`${password.length > 0 && password.length < 8 &&
+                      'wrong-input'} rounded-2xl h-full w-full pl-4 py-3 border`} onChange={(e) => { setPassword(e.target.value) }}/>
+                      <button type='button' className='py-3 pr-4 absolute right-0' onClick={togglePasswordVisibility}>
+                        {showPassword
+                          ? (<FontAwesomeIcon icon={faEye} />)
+                          : (<FontAwesomeIcon icon={faEyeSlash} />
+                          )}
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <input
-                  type='text'
-                  placeholder='Nama Lengkap'
-                  id='name'
-                  onChange={(e) => { setName(e.target.value) }}
-                />
-              </div>
-              <div>
-                <div>
-                  <label htmlFor='email'>Email</label>
-                </div>
-                <input
-                  type='email'
-                  placeholder='Contoh: johndoe@gmail.com'
-                  id='email'
-                  onChange={(e) => { setEmail(e.target.value) }}
-                />
-              </div>
-              <div>
-                <div>
-                  <label htmlFor='phoneNumber'>Nomor Telepon</label>
-                </div>
-                <input
-                  type='text'
-                  placeholder='08...'
-                  id='phoneNumber'
-                  onChange={(e) => { setPhoneNumber(e.target.value) }}
-                />
-              </div>
-              <div>
-                <div>
-                  <label htmlFor=''>Password</label>
-                </div>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder='Buat password'
-                  id='password'
-                  onChange={(e) => { setPassword(e.target.value) }}
-                />
-                <button
-                  type='button'
-                  onClick={togglePasswordVisibility}
-                  disabled={isLoading}
-                >
-                  {showPassword
-                    ? (<FontAwesomeIcon icon={faEye} />)
-                    : (<FontAwesomeIcon icon={faEyeSlash} />
-                    )}
+                <button type='submit' className={`w-full text-white rounded-2xl px-6 py-3 text-sm mt-8 ${isLoading ? 'bg-slate-400 cursor-not-allowed' : 'bg-violet-700'}`} disabled={isLoading}>
+                  {
+                    isLoading
+                      ? 'Tunggu Sebentar'
+                      : 'Daftar'
+                  }
                 </button>
-              </div>
-              <button type='submit'>Daftar</button>
-              <p>Sudah punya akun?{' '}
-                <Link href='/auth/login'>Masuk di sini</Link>
-              </p>
-              {errorMessage !== '' && <p>{errorMessage}</p>}
-              {successMessage !== '' && <p>{successMessage}</p>}
-            </form>
+                <p className='text-sm text-center mt-8'>Sudah punya akun?{' '}
+                  <Link href='/login' className='text-violet-700 font-bold'>Masuk di sini</Link>
+                </p>
+                <div className='flex mt-6'>
+                  <span className={`${errorMessage === '' && successMessage === '' ? 'h-0 w-0 opacity-0' : 'h-fit w-fit opacity-100 px-6 py-2'} duration-300 text-sm mx-auto text-white rounded-2xl text-center ${errorMessage !== '' && 'bg-red-600'} ${successMessage !== '' && 'bg-green-400'}`}>
+                    {
+                      errorMessage === '' && successMessage === ''
+                        ? ''
+                        : errorMessage !== ''
+                          ? errorMessage
+                          : successMessage
+                    }
+                  </span>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
+  )
+}
+
+Register.getLayout = function getLayout (page: ReactElement) {
+  return (
+    <AuthPageLayout>
+      {page}
+    </AuthPageLayout>
   )
 }
 
