@@ -53,13 +53,13 @@ const Register = (): ReactElement => {
       setIsLoading(true)
       setErrorMessage('')
       setSuccessMessage('')
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const response = await axios.post('http://localhost:8000/api/v1/register', {
         name,
         email,
         password,
         phoneNumber
       })
-
       setSuccessMessage('Registrasi berhasil')
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -70,7 +70,6 @@ const Register = (): ReactElement => {
         }
         console.error(error)
       } else {
-        // Error bukan dari Axios
         console.error(error)
       }
     }
@@ -87,7 +86,7 @@ const Register = (): ReactElement => {
       <div id='register-page'>
         <div className='flex h-screen overflow-hidden'>
           <div className='hidden lg:w-1/2 lg:relative lg:flex lg:px-8'>
-            <Image src='/images/auth-background.png' fill={true} loading='lazy' alt='Auth Page Background' className='object-cover'/>
+            <Image src='/images/auth-background.png' fill={true} sizes='100%' priority={true} alt='Auth Page Background' className='object-cover'/>
             <Image src='/images/flynar-logo.png' width={200} height={200} loading='lazy' alt='Flynar Logo' className='absolute bottom-0'/>
           </div>
           <div className='w-full h-full flex px-6 py-4 lg:p-0 lg:w-1/2'>
