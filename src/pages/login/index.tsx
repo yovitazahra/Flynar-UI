@@ -1,12 +1,15 @@
-import { useState, type ReactElement } from 'react'
+import { useState, useEffect, type ReactElement } from 'react'
 import Link from 'next/link'
 import Head from 'next/head'
 import Image from 'next/image'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios'
+import AuthPageLayout from '@/layouts/auth'
+import { useRouter } from 'next/router'
 
 const Login = (): ReactElement => {
+  const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const togglePasswordVisibility = (): void => {
     setShowPassword(!showPassword)
@@ -14,31 +17,49 @@ const Login = (): ReactElement => {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+
+  useEffect(() => {
+    if (errorMessage !== '') {
+      setErrorMessage('')
+    }
+  }, [email, password])
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
 
-    try {
-      const response = await axios.post('http://localhost:8000/api/v1/login', { identifier: email, password })
+    if (email === '' || password === '') {
+      setErrorMessage('Mohon Lengkapi Data')
+      return
+    }
 
+    if (password.length < 8) {
+      setErrorMessage('Password Minimal 8 Karakter')
+      return
+    }
+
+    try {
+      setIsLoading(true)
+      setErrorMessage('')
+      const response = await axios.post('http://localhost:8000/api/v1/login', { identifier: email, password })
+      sessionStorage.setItem('accessToken', response.data.accessToken)
       if (response.status === 200) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { accessToken } = response.data
-      } else {
-        const { message } = response.data
-        setErrorMessage(message)
+        await router.push('/')
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
           setErrorMessage(error.response.data.message)
         } else {
-          setErrorMessage('Terjadi kesalahan pada proses registrasi')
+          setErrorMessage('Terjadi kesalahan pada proses loginS')
         }
         console.error(error)
       } else {
         console.error(error)
       }
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -49,46 +70,64 @@ const Login = (): ReactElement => {
         <meta name='description' content='Sign in to flynar website' />
         <meta name='viewport' content='initial-scale=1.0, width=device-width' />
       </Head>
-      <div id='login-page' className='flex'>
-        <div className='relative w-full h-[100vh] hidden md:w-50 lg:block bg-gradient-to-b from-[#D0B7E6] to-[#E2D4F0]'>
-          <Image src='/assets/logoFlynarbaru.png' width={264} height={146} alt='' className='absolute object-contain top-[11%] left-[7%]' />
-          <Image src='/assets/bgFlower.png' width={719} height={498} alt='' className='absolute object-contain bottom-[59px]' />
+      <div id='login-page' className='flex h-screen overflow-hidden'>
+        <div className='hidden lg:w-1/2 lg:relative lg:flex lg:px-8'>
+          <Image src='/images/auth-background.png' fill={true} sizes='100%' priority={true} alt='Auth Page Background' className='object-cover'/>
+          <Image src='/images/flynar-logo.png' width={200} height={200} loading='lazy' alt='Flynar Logo' className='absolute bottom-0'/>
         </div>
-        <div className='flex items-center justify-center w-full md:w-50 h-[100vh]'>
-          <div className='w-full px-[20%]'>
-            <div className='flex justify-center'>
-              <Image src='/assets/logoFlynarbaru.png' width={200} height={200} alt='' className='object-contain block lg:hidden' />
-            </div>
-            <form onSubmit={(e) => { void handleSubmit(e) } } action='' className='w-[110%] h-auto'>
+        <div className='w-full h-full flex px-6 py-4 lg:p-0 lg:w-1/2'>
+          <div className='m-auto w-full md:w-3/6 lg:w-4/6'>
+            <form onSubmit={(e) => { void handleSubmit(e) } } action=''>
               <h5 className='font-bold text-2xl leading-9 mb-6'>Masuk</h5>
-              <div className='email mb-4'>
-                <div className='mb-1'>
-                  <label htmlFor='' className='font-normal text-base leading-6'>Email/No Telepon</label>
+              <div className='flex flex-col gap-y-3 text-sm'>
+                <div className='flex flex-col gap-y-2'>
+                  <label htmlFor='email'>Email/No Telepon</label>
+                  <input type='text' autoComplete='off' autoCorrect='false' value={email} onChange={(e) => { setEmail(e.target.value) }} placeholder='Contoh: johndoe@gmail.com' id='email' className='border rounded-2xl px-4 py-3'/>
                 </div>
-                <input type='text' value={email} onChange={(e) => { setEmail(e.target.value) }} placeholder='Contoh: johndoe@gmail.com' className='formEmail w-full h-12 font-normal text-base leading-6 text-gray-600 py-3 px-4 outline-none border border-gray-300 rounded-lg'/>
-              </div>
-              <div className='pass mb-6 relative'>
-                <div className='flex items-center justify-between mb-1'>
-                  <label htmlFor='' className='font-normal text-xs leading-6'>Password</label>
-                  <a href='auth/ForgotPassword' className='font-medium text-xs leading-6 text-purple-600 no-underline'>Lupa Kata Sandi</a>
+                <div className='flex flex-col gap-y-2'>
+                  <div className='flex items-center justify-between mb-1'>
+                    <label htmlFor='password'>Password</label>
+                    <Link href='forgot-password' className='font-medium text-xs leading-6 text-purple-700 no-underline'>Lupa Kata Sandi</Link>
+                  </div>
+                  <div className='flex justify-between relative'>
+                    <input value={password} onChange={(e) => { setPassword(e.target.value) }} type={showPassword ? 'text' : 'password'} placeholder='Masukkan password' id='password' className={`${password.length > 0 && password.length < 8 && 'wrong-input'} rounded-2xl h-full w-full pl-4 py-3 border`}/>
+                    <button type='button' className='py-3 pr-4 absolute right-0' onClick={togglePasswordVisibility}>
+                      {showPassword
+                        ? (<FontAwesomeIcon icon={faEye} />)
+                        : (<FontAwesomeIcon icon={faEyeSlash} />
+                        )}
+                    </button>
+                  </div>
                 </div>
-                <input value={password} onChange={(e) => { setPassword(e.target.value) }} type={showPassword ? 'text' : 'password'} placeholder='Masukkan password' id='password' className='formPass relative w-full h-12 font-normal text-base leading-6 py-3 px-4 outline-none border border-gray-300 rounded-lg'/>
-                <button
-                  type='button' onClick={togglePasswordVisibility} className='bg-white px-2 pr-2 absolute top-1/2 right-2 border-none'
-                >
-                  {showPassword ? <FontAwesomeIcon icon={faEye} /> : <FontAwesomeIcon icon={faEyeSlash} />}
-                </button>
               </div>
-              <button type='submit' className='w-full h-12 px-6 py-2 bg-purple-600 rounded-lg text-white font-medium text-base leading-6 mb-10 border-none'>Masuk</button>
-              <p className='text-center font-normal text-base leading-6 text-black mb-3'>Belum punya akun?{' '}
-                <Link href='/register' className='font-semibold text-base leading-6 text-purple-700 no-underline'>Daftar di sini</Link>
+              <button type='submit' className={`w-full text-white rounded-2xl px-6 py-3 text-sm mt-8 ${isLoading ? 'bg-slate-400 cursor-not-allowed' : 'bg-purple-600'}`} disabled={isLoading}>
+                {
+                  isLoading
+                    ? 'Tunggu Sebentar'
+                    : 'Masuk'
+                }
+              </button>
+              <p className='text-center text-sm mt-8'>Belum punya akun?{' '}
+                <Link href='/register' className='font-bold text-purple-700'>Daftar di sini</Link>
               </p>
-              {errorMessage !== '' && <p className='text-center text-white p-3 bg-red-600 rounded-md w-[100%]'>{errorMessage}</p>}
+              <div className='flex mt-6'>
+                <span className={`${errorMessage === '' ? 'h-0 w-0 opacity-0' : 'h-fit w-fit opacity-100 px-6 py-2 bg-red-600'} duration-300 text-sm mx-auto text-white rounded-2xl text-center`}>
+                  {errorMessage}
+                </span>
+              </div>
             </form>
           </div>
         </div>
       </div>
     </>
+  )
+}
+
+Login.getLayout = function getLayout (page: ReactElement) {
+  return (
+    <AuthPageLayout>
+      {page}
+    </AuthPageLayout>
   )
 }
 

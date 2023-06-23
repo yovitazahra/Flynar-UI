@@ -28,7 +28,6 @@ const Register = (): ReactElement => {
     if (errorMessage !== '') {
       setErrorMessage('')
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name, email, password, phoneNumber])
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
@@ -53,7 +52,6 @@ const Register = (): ReactElement => {
       setIsLoading(true)
       setErrorMessage('')
       setSuccessMessage('')
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const response = await axios.post('http://localhost:8000/api/v1/register', {
         name,
         email,
@@ -72,8 +70,9 @@ const Register = (): ReactElement => {
       } else {
         console.error(error)
       }
+    } finally {
+      setIsLoading(false)
     }
-    setIsLoading(false)
   }
 
   return (
@@ -96,21 +95,20 @@ const Register = (): ReactElement => {
                 <div className='flex flex-col gap-y-3 text-sm'>
                   <div className='flex flex-col gap-y-2'>
                     <label htmlFor='name'>Nama</label>
-                    <input type='text' autoComplete='off' autoCorrect='false' placeholder='Nama Lengkap' id='name' className='border rounded-2xl px-4 py-3' onChange={(e) => { setName(e.target.value) }}/>
+                    <input type='text' value={name} autoComplete='off' autoCorrect='false' placeholder='Nama Lengkap' id='name' className='border rounded-2xl px-4 py-3' onChange={(e) => { setName(e.target.value) }}/>
                   </div>
                   <div className='flex flex-col gap-y-2'>
                     <label htmlFor='email'>Email</label>
-                    <input type='text' autoComplete='off' autoCorrect='false' placeholder='Contoh: johndoe@gmail.com' id='email' className={`${isEmailValid(email) === null && 'wrong-input'} border rounded-2xl px-4 py-3`} onChange={(e) => { setEmail(e.target.value) }}/>
+                    <input type='text' value={email} autoComplete='off' autoCorrect='false' placeholder='Contoh: johndoe@gmail.com' id='email' className={`${isEmailValid(email) === null && 'wrong-input'} border rounded-2xl px-4 py-3`} onChange={(e) => { setEmail(e.target.value) }}/>
                   </div>
                   <div className='flex flex-col gap-y-2'>
                     <label htmlFor='phoneNumber'>Nomor Telepon</label>
-                    <input type='text' autoComplete='off' autoCorrect='false' placeholder='08...' id='phoneNumber' className={`${isNaN(parseInt(phoneNumber)) && phoneNumber.length > 0 && 'wrong-input'} border rounded-2xl px-4 py-3`} onChange={(e) => { setPhoneNumber(e.target.value) }}/>
+                    <input type='text' value={phoneNumber} autoComplete='off' autoCorrect='false' placeholder='08...' id='phoneNumber' className={`${isNaN(parseInt(phoneNumber)) && phoneNumber.length > 0 && 'wrong-input'} border rounded-2xl px-4 py-3`} onChange={(e) => { setPhoneNumber(e.target.value) }}/>
                   </div>
                   <div className='flex flex-col gap-y-2'>
                     <label htmlFor='password'>Password</label>
                     <div className='flex justify-between relative'>
-                      <input type={showPassword ? 'text' : 'password'} placeholder='Buat password' id='password' className={`${password.length > 0 && password.length < 8 &&
-                      'wrong-input'} rounded-2xl h-full w-full pl-4 py-3 border`} onChange={(e) => { setPassword(e.target.value) }}/>
+                      <input type={showPassword ? 'text' : 'password'} value={password} placeholder='Buat password' id='password' className={`${password.length > 0 && password.length < 8 && 'wrong-input'} rounded-2xl h-full w-full pl-4 py-3 border`} onChange={(e) => { setPassword(e.target.value) }}/>
                       <button type='button' className='py-3 pr-4 absolute right-0' onClick={togglePasswordVisibility}>
                         {showPassword
                           ? (<FontAwesomeIcon icon={faEye} />)
@@ -120,7 +118,7 @@ const Register = (): ReactElement => {
                     </div>
                   </div>
                 </div>
-                <button type='submit' className={`w-full text-white rounded-2xl px-6 py-3 text-sm mt-8 ${isLoading ? 'bg-slate-400 cursor-not-allowed' : 'bg-violet-700'}`} disabled={isLoading}>
+                <button type='submit' className={`w-full text-white rounded-2xl px-6 py-3 text-sm mt-8 ${isLoading ? 'bg-slate-400 cursor-not-allowed' : 'bg-purple-600'}`} disabled={isLoading}>
                   {
                     isLoading
                       ? 'Tunggu Sebentar'
@@ -128,7 +126,7 @@ const Register = (): ReactElement => {
                   }
                 </button>
                 <p className='text-sm text-center mt-8'>Sudah punya akun?{' '}
-                  <Link href='/login' className='text-violet-700 font-bold'>Masuk di sini</Link>
+                  <Link href='/login' className='text-purple-700 font-bold'>Masuk di sini</Link>
                 </p>
                 <div className='flex mt-6'>
                   <span className={`${errorMessage === '' && successMessage === '' ? 'h-0 w-0 opacity-0' : 'h-fit w-fit opacity-100 px-6 py-2'} duration-300 text-sm mx-auto text-white rounded-2xl text-center ${errorMessage !== '' && 'bg-red-600'} ${successMessage !== '' && 'bg-green-400'}`}>
