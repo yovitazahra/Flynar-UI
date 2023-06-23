@@ -3,6 +3,7 @@ import type { ReactElement, FormEvent } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import Image from 'next/image'
+import { redirect } from 'next/navigation'
 import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
@@ -61,6 +62,9 @@ const Register = (): ReactElement => {
         phoneNumber
       })
       setSuccessMessage('Registrasi berhasil')
+      setTimeout(() => {
+        redirect('/verify-otp')
+      }, 1000)
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
