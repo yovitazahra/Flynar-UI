@@ -1,5 +1,6 @@
 import { useState, type ReactElement } from 'react'
 import Link from 'next/link'
+import Head from 'next/head'
 import Image from 'next/image'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
@@ -42,8 +43,13 @@ const Login = (): ReactElement => {
   }
 
   return (
-    <div>
-      <div className='flex'>
+    <>
+      <Head>
+        <title>Sign In</title>
+        <meta name='description' content='Sign in to flynar website' />
+        <meta name='viewport' content='initial-scale=1.0, width=device-width' />
+      </Head>
+      <div id='login-page' className='flex'>
         <div className='relative w-full h-[100vh] hidden md:w-50 lg:block bg-gradient-to-b from-[#D0B7E6] to-[#E2D4F0]'>
           <Image src='/assets/logoFlynarbaru.png' width={264} height={146} alt='' className='absolute object-contain top-[11%] left-[7%]' />
           <Image src='/assets/bgFlower.png' width={719} height={498} alt='' className='absolute object-contain bottom-[59px]' />
@@ -82,7 +88,7 @@ const Login = (): ReactElement => {
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
