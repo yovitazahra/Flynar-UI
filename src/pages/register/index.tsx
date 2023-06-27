@@ -3,7 +3,7 @@ import type { ReactElement, FormEvent } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import Image from 'next/image'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/router'
 import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
@@ -24,6 +24,7 @@ const Register = (): ReactElement => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
+  const router = useRouter()
 
   useEffect(() => {
     if (errorMessage !== '') {
@@ -61,7 +62,7 @@ const Register = (): ReactElement => {
       })
       setSuccessMessage('Registrasi berhasil')
       setTimeout(() => {
-        redirect('/verify-otp')
+        void router.push('/verify-otp')
       }, 1000)
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -92,7 +93,7 @@ const Register = (): ReactElement => {
             <Image src='/images/auth-background.png' fill={true} sizes='100%' priority={true} alt='Auth Page Background' className='object-cover'/>
             <Image src='/images/flynar-logo.png' width={200} height={200} loading='lazy' alt='Flynar Logo' className='absolute bottom-0'/>
           </div>
-          <div className='w-full h-full flex px-6 py-4 lg:p-0 lg:w-1/2'>
+          <div className='w-full h-full flex px-6 py-4 lg:p-0 lg:w-1/2 auth-bg-2'>
             <div className='m-auto w-full md:w-3/6 lg:w-4/6'>
               <form action='' autoComplete='off' onSubmit={(e) => { void handleSubmit(e) } }>
                 <h5 className='text-2xl leading-9 mb-6 font-bold'>Daftar</h5>

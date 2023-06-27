@@ -19,3 +19,8 @@ textarea:focus, input:focus{
 input::-ms-reveal, input::-ms-clear {
   display: none;
 }
+
+.auth-bg-2 {
+  background-image: url('../../public/images/auth-background-2.jpg');
+  background-size: cover;
+}

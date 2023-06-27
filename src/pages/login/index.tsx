@@ -52,7 +52,7 @@ const Login = (): ReactElement => {
         if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
           setErrorMessage(error.response.data.message)
         } else {
-          setErrorMessage('Terjadi kesalahan pada proses loginS')
+          setErrorMessage('Terjadi kesalahan pada proses login')
         }
         console.error(error)
       } else {
@@ -75,7 +75,7 @@ const Login = (): ReactElement => {
           <Image src='/images/auth-background.png' fill={true} sizes='100%' priority={true} alt='Auth Page Background' className='object-cover'/>
           <Image src='/images/flynar-logo.png' width={200} height={200} loading='lazy' alt='Flynar Logo' className='absolute bottom-0'/>
         </div>
-        <div className='w-full h-full flex px-6 py-4 lg:p-0 lg:w-1/2'>
+        <div className='w-full h-full flex px-6 py-4 lg:p-0 lg:w-1/2 auth-bg-2'>
           <div className='m-auto w-full md:w-3/6 lg:w-4/6'>
             <form onSubmit={(e) => { void handleSubmit(e) } } action=''>
               <h5 className='font-bold text-2xl leading-9 mb-6'>Masuk</h5>
