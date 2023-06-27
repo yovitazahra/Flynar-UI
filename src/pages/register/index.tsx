@@ -5,8 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import axios from 'axios'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
+import { FiEye, FiEyeOff } from 'react-icons/fi'
 import AuthPageLayout from '@/layouts/auth'
 import isEmailValid from '@/utils/isEmailValid'
 
@@ -69,7 +68,7 @@ const Register = (): ReactElement => {
         if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
           setErrorMessage(error.response.data.message)
         } else {
-          setErrorMessage('Terjadi kesalahan pada proses registrasi')
+          setErrorMessage('Terjadi Kesalahan, Coba Lagi')
         }
         console.error(error)
       } else {
@@ -114,11 +113,11 @@ const Register = (): ReactElement => {
                     <label htmlFor='password'>Password</label>
                     <div className='flex justify-between relative'>
                       <input type={showPassword ? 'text' : 'password'} value={password} placeholder='Buat password' id='password' className={`${password.length > 0 && password.length < 8 && 'wrong-input'} rounded-2xl h-full w-full pl-4 py-3 border`} onChange={(e) => { setPassword(e.target.value) }}/>
-                      <button type='button' className='py-3 pr-4 absolute right-0' onClick={togglePasswordVisibility}>
+                      <button type='button' className='py-3 pr-4 absolute right-0 h-full toggle-password' title='toggle-password' onClick={togglePasswordVisibility}>
                         {showPassword
-                          ? (<FontAwesomeIcon icon={faEye} />)
-                          : (<FontAwesomeIcon icon={faEyeSlash} />
-                          )}
+                          ? (<FiEye/>)
+                          : ((<FiEyeOff/>))
+                        }
                       </button>
                     </div>
                   </div>

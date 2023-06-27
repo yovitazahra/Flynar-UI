@@ -2,8 +2,7 @@ import { useState, useEffect, type ReactElement } from 'react'
 import Link from 'next/link'
 import Head from 'next/head'
 import Image from 'next/image'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
+import { FiEye, FiEyeOff } from 'react-icons/fi'
 import axios from 'axios'
 import AuthPageLayout from '@/layouts/auth'
 import { useRouter } from 'next/router'
@@ -52,7 +51,7 @@ const Login = (): ReactElement => {
         if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
           setErrorMessage(error.response.data.message)
         } else {
-          setErrorMessage('Terjadi kesalahan pada proses login')
+          setErrorMessage('Terjadi Kesalahan, Coba Lagi')
         }
         console.error(error)
       } else {
@@ -91,11 +90,11 @@ const Login = (): ReactElement => {
                   </div>
                   <div className='flex justify-between relative'>
                     <input value={password} onChange={(e) => { setPassword(e.target.value) }} type={showPassword ? 'text' : 'password'} placeholder='Masukkan password' id='password' className={`${password.length > 0 && password.length < 8 && 'wrong-input'} rounded-2xl h-full w-full pl-4 py-3 border`}/>
-                    <button type='button' className='py-3 pr-4 absolute right-0' onClick={togglePasswordVisibility}>
+                    <button type='button' className='py-3 pr-4 absolute right-0 h-full toggle-password' title='toggle-password' onClick={togglePasswordVisibility}>
                       {showPassword
-                        ? (<FontAwesomeIcon icon={faEye} />)
-                        : (<FontAwesomeIcon icon={faEyeSlash} />
-                        )}
+                        ? (<FiEye/>)
+                        : ((<FiEyeOff/>))
+                      }
                     </button>
                   </div>
                 </div>

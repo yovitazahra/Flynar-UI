@@ -42,7 +42,7 @@ const ForgotPassword = (): ReactElement => {
         if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
           setErrorMessage(error.response.data.message)
         } else {
-          setErrorMessage('Terjadi kesalahan')
+          setErrorMessage('Terjadi Kesalahan, Coba Lagi')
         }
         console.error(error)
       } else {
@@ -68,7 +68,7 @@ const ForgotPassword = (): ReactElement => {
         <div className='w-full h-full flex px-6 py-4 lg:p-0 lg:w-1/2 auth-bg-2'>
           <div className='m-auto w-full md:w-3/6 lg:w-4/6'>
             <form onSubmit={(e) => { void handleSubmit(e) } } action=''>
-              <h5 className='font-bold text-2xl leading-9 mb-6'>Reset Password</h5>
+              <h5 className='font-bold text-2xl leading-9 mb-6'>Forgot Password</h5>
               <div className='flex flex-col gap-y-3 text-sm'>
                 <div className='flex flex-col gap-y-2'>
                   <label htmlFor='email'>Email/No Telepon</label>
