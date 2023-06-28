@@ -53,7 +53,7 @@ const ResetPassword = (): ReactElement => {
       setSuccessMessage(response.data.message)
       setTimeout(() => {
         void router.push('/login')
-      }, 1000)
+      }, 2000)
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {

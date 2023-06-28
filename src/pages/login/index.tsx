@@ -6,6 +6,7 @@ import { FiEye, FiEyeOff } from 'react-icons/fi'
 import axios from 'axios'
 import AuthPageLayout from '@/layouts/auth'
 import { useRouter } from 'next/router'
+import { setCookie } from 'cookies-next'
 
 const Login = (): ReactElement => {
   const router = useRouter()
@@ -49,7 +50,15 @@ const Login = (): ReactElement => {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
-          setErrorMessage(error.response.data.message)
+          if (error.response.data.message === 'Silahkan Verifikasi Akun Ini') {
+            setCookie('loggedEmail', email)
+            setErrorMessage(error.response.data.message)
+            setTimeout(() => {
+              void router.push('/verify-otp')
+            }, 2000)
+          } else {
+            setErrorMessage(error.response.data.message)
+          }
         } else {
           setErrorMessage('Terjadi Kesalahan, Coba Lagi')
         }

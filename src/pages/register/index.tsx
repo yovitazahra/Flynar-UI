@@ -8,6 +8,7 @@ import axios from 'axios'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import AuthPageLayout from '@/layouts/auth'
 import isEmailValid from '@/utils/isEmailValid'
+import { setCookie } from 'cookies-next'
 
 const Register = (): ReactElement => {
   const [showPassword, setShowPassword] = useState(false)
@@ -59,10 +60,11 @@ const Register = (): ReactElement => {
         password,
         phoneNumber
       })
+      setCookie('loggedEmail', email)
       setSuccessMessage('Registrasi berhasil')
       setTimeout(() => {
         void router.push('/verify-otp')
-      }, 1000)
+      }, 2000)
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
