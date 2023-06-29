@@ -43,8 +43,8 @@ const ForgotPassword = (): ReactElement => {
           setErrorMessage(error.response.data.message)
         } else {
           setErrorMessage('Terjadi Kesalahan, Coba Lagi')
+          console.error(error)
         }
-        console.error(error)
       } else {
         console.error(error)
       }
@@ -61,7 +61,7 @@ const ForgotPassword = (): ReactElement => {
         <meta name='viewport' content='initial-scale=1.0, width=device-width' />
       </Head>
       <div id='forgot-password-page' className='flex h-screen overflow-hidden'>
-        <div className='hidden lg:w-1/2 lg:relative lg:flex lg:px-8'>
+        <div className='hidden lg:w-1/2 relative lg:flex lg:px-8'>
           <Image src='/images/auth-background.png' fill={true} sizes='100%' priority={true} alt='Auth Page Background' className='object-cover'/>
           <Image src='/images/flynar-logo.png' width={200} height={200} loading='lazy' alt='Flynar Logo' className='absolute bottom-0'/>
         </div>

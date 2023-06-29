@@ -38,23 +38,15 @@ const VerifyOtp = (): ReactElement => {
     void resendOtp()
   }, [loggedEmail])
 
-  // useEffect(() => {
-  //   if (startCountdown === true) {
-  //     const interval = setInterval(() => {
-  //       if (secondTimer !== null) {
-  //         secondTimer.innerHTML = toString(60)
-  //       }
-  //     }, 1000)
-  //   } else {
-  //   }
-  // }, [startCountdown])
-
   const setLoggedEmailFromCookie = async (): Promise<void> => {
     const email: any = getCookie('loggedEmail')
     if (email !== undefined && email !== null && email !== '') {
       setLoggedEmail(email)
     } else {
-      await router.push('/')
+      setErrorMessage('Silahkan Login')
+      setTimeout(() => {
+        void router.push('/')
+      }, 2000)
     }
   }
 
@@ -87,11 +79,13 @@ const VerifyOtp = (): ReactElement => {
           setErrorMessage(error.response.data.message)
         } else {
           setErrorMessage('Terjadi Kesalahan, Coba Lagi')
+          console.error(error)
         }
         if (error.response?.data.message === 'Email Sudah Diverifikasi') {
-          await router.push('/login')
+          setTimeout(() => {
+            void router.push('/login')
+          }, 2000)
         }
-        console.error(error)
       } else {
         console.error(error)
       }
@@ -108,15 +102,17 @@ const VerifyOtp = (): ReactElement => {
       setErrorMessage('')
       const response = await axios.post('http://localhost:8000/api/v1/verify', { email: loggedEmail, otp: parseInt(otp) })
       setSuccessMessage(response.data.message)
-      await router.push('/login')
+      setTimeout(() => {
+        void router.push('/login')
+      }, 2000)
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
           setErrorMessage(error.response.data.message)
         } else {
           setErrorMessage('Terjadi Kesalahan, Coba Lagi')
+          console.error(error)
         }
-        console.error(error)
       } else {
         console.error(error)
       }
@@ -135,7 +131,7 @@ const VerifyOtp = (): ReactElement => {
       <div id='verify-otp-page' className='h-screen overflow-hidden flex flex-col'>
         <header className='w-full bg-white h-20 shadow-md'>
           <div className='h-full container px-12 flex'>
-            <Image src='/images/flynar-logo.png' width={200} height={200} loading='lazy' alt='Flynar Logo' className='h-full w-auto'/>
+            <Image src='/images/flynar-logo.png' width={200} height={200} priority={true} alt='Flynar Logo' className='h-full w-auto'/>
           </div>
         </header>
         <div className='w-full px-6 py-4 lg:p-0 mt-10'>
