@@ -86,7 +86,6 @@ const Register = (): ReactElement => {
       <Head>
         <title>Sign Up</title>
         <meta name='description' content='Sign up to flynar website' />
-        <meta name='viewport' content='initial-scale=1.0, width=device-width' />
       </Head>
       <div id='register-page'>
         <div className='flex h-screen overflow-hidden'>
@@ -115,7 +114,7 @@ const Register = (): ReactElement => {
                     <label htmlFor='password'>Password</label>
                     <div className='flex justify-between relative'>
                       <input type={showPassword ? 'text' : 'password'} value={password} placeholder='Buat password' id='password' className={`${password.length > 0 && password.length < 8 && 'wrong-input'} rounded-2xl h-full w-full pl-4 py-3 border`} onChange={(e) => { setPassword(e.target.value) }}/>
-                      <button type='button' className='py-3 pr-4 absolute right-0 h-full toggle-password' title='toggle-password' onClick={togglePasswordVisibility}>
+                      <button type='button' className='py-3 px-4 rounded-2xl absolute right-0 h-full toggle-password' title='toggle-password' onClick={togglePasswordVisibility}>
                         {showPassword
                           ? (<FiEye/>)
                           : ((<FiEyeOff/>))

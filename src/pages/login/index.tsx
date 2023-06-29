@@ -77,7 +77,6 @@ const Login = (): ReactElement => {
       <Head>
         <title>Sign In</title>
         <meta name='description' content='Sign in to flynar website' />
-        <meta name='viewport' content='initial-scale=1.0, width=device-width' />
       </Head>
       <div id='login-page' className='flex h-screen overflow-hidden'>
         <div className='hidden lg:w-1/2 relative lg:flex lg:px-8'>
@@ -100,7 +99,7 @@ const Login = (): ReactElement => {
                   </div>
                   <div className='flex justify-between relative'>
                     <input value={password} onChange={(e) => { setPassword(e.target.value) }} type={showPassword ? 'text' : 'password'} placeholder='Masukkan password' id='password' className={`${password.length > 0 && password.length < 8 && 'wrong-input'} rounded-2xl h-full w-full pl-4 py-3 border`}/>
-                    <button type='button' className='py-3 pr-4 absolute right-0 h-full toggle-password' title='toggle-password' onClick={togglePasswordVisibility}>
+                    <button type='button' className='py-3 px-4 rounded-2xl absolute right-0 h-full toggle-password' title='toggle-password' onClick={togglePasswordVisibility}>
                       {showPassword
                         ? (<FiEye/>)
                         : ((<FiEyeOff/>))

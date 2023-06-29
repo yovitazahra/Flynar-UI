@@ -75,7 +75,6 @@ const ResetPassword = (): ReactElement => {
       <Head>
         <title>Reset Password</title>
         <meta name='description' content='Set Your new password and Reset Your old password' />
-        <meta name='viewport' content='initial-scale=1.0, width=device-width' />
       </Head>
       <div id='reset-password-page' className='flex h-screen overflow-hidden'>
         <div className='hidden lg:w-1/2 relative lg:flex lg:px-8'>
@@ -100,7 +99,7 @@ const ResetPassword = (): ReactElement => {
                   </div>
                   <div className='flex justify-between relative'>
                     <input value={newPassword} onChange={(e) => { setNewPassword(e.target.value) }} type={showNewPassword ? 'text' : 'password'} placeholder='Masukkan password baru' id='new-password' className={`${newPassword.length > 0 && newPassword.length < 8 && 'wrong-input'} rounded-2xl h-full w-full pl-4 py-3 border`}/>
-                    <button type='button' className='py-3 pr-4 absolute right-0 h-full toggle-password' title='toggle-password' onClick={() => { setShowNewPassword(!showNewPassword) }}>
+                    <button type='button' className='py-3 px-4 rounded-2xl absolute right-0 h-full toggle-password' title='toggle-password' onClick={() => { setShowNewPassword(!showNewPassword) }}>
                       {showNewPassword
                         ? (<FiEye/>)
                         : ((<FiEyeOff/>))
@@ -114,7 +113,7 @@ const ResetPassword = (): ReactElement => {
                   </div>
                   <div className='flex justify-between relative'>
                     <input value={confirmPassword} onChange={(e) => { setConfirmPassword(e.target.value) }} type={showConfirmPassword ? 'text' : 'password'} placeholder='Masukkan password baru' id='confirm-password' className={`${confirmPassword.length > 0 && confirmPassword.length < 8 && 'wrong-input'} rounded-2xl h-full w-full pl-4 py-3 border`}/>
-                    <button type='button' className='py-3 pr-4 absolute right-0 h-full toggle-password' title='toggle-password' onClick={() => { setShowConfirmPassword(!showConfirmPassword) }}>
+                    <button type='button' className='py-3 px-4 rounded-2xl absolute right-0 h-full toggle-password' title='toggle-password' onClick={() => { setShowConfirmPassword(!showConfirmPassword) }}>
                       {showConfirmPassword
                         ? (<FiEye/>)
                         : ((<FiEyeOff/>))

@@ -57,7 +57,7 @@ const VerifyOtp = (): ReactElement => {
       if (loggedEmail !== '') {
         setErrorMessage('')
         setSuccessMessage('')
-        const response = await axios.put('http://localhost:8000/api/v1/resend-otp', { email: loggedEmail })
+        const response = await axios.post('http://localhost:8000/api/v1/resend-otp', { email: loggedEmail })
         setSuccessMessage(response.data.message)
         const interval = setInterval(() => {
           secondTimer = document?.querySelector('.second-timer')
@@ -126,7 +126,6 @@ const VerifyOtp = (): ReactElement => {
       <Head>
         <title>Verify OTP</title>
         <meta name='description' content='Verify Your account with OTP' />
-        <meta name='viewport' content='initial-scale=1.0, width=device-width' />
       </Head>
       <div id='verify-otp-page' className='h-screen overflow-hidden flex flex-col'>
         <header className='w-full bg-white h-20 shadow-md'>

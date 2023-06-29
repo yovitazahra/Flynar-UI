@@ -58,7 +58,6 @@ const ForgotPassword = (): ReactElement => {
       <Head>
         <title>Forgot Password</title>
         <meta name='description' content='Reset Your password' />
-        <meta name='viewport' content='initial-scale=1.0, width=device-width' />
       </Head>
       <div id='forgot-password-page' className='flex h-screen overflow-hidden'>
         <div className='hidden lg:w-1/2 relative lg:flex lg:px-8'>
