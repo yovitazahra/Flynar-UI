@@ -6,6 +6,7 @@ import { FiEye, FiEyeOff } from 'react-icons/fi'
 import axios from 'axios'
 import AuthPageLayout from '@/layouts/auth'
 import { useRouter } from 'next/router'
+import { setCookie } from 'cookies-next'
 
 const Login = (): ReactElement => {
   const router = useRouter()
@@ -49,11 +50,19 @@ const Login = (): ReactElement => {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
-          setErrorMessage(error.response.data.message)
+          if (error.response.data.message === 'Silahkan Verifikasi Akun Ini') {
+            setCookie('loggedEmail', email)
+            setErrorMessage(error.response.data.message)
+            setTimeout(() => {
+              void router.push('/verify-otp')
+            }, 2000)
+          } else {
+            setErrorMessage(error.response.data.message)
+          }
         } else {
           setErrorMessage('Terjadi Kesalahan, Coba Lagi')
+          console.error(error)
         }
-        console.error(error)
       } else {
         console.error(error)
       }
@@ -70,7 +79,7 @@ const Login = (): ReactElement => {
         <meta name='viewport' content='initial-scale=1.0, width=device-width' />
       </Head>
       <div id='login-page' className='flex h-screen overflow-hidden'>
-        <div className='hidden lg:w-1/2 lg:relative lg:flex lg:px-8'>
+        <div className='hidden lg:w-1/2 relative lg:flex lg:px-8'>
           <Image src='/images/auth-background.png' fill={true} sizes='100%' priority={true} alt='Auth Page Background' className='object-cover'/>
           <Image src='/images/flynar-logo.png' width={200} height={200} loading='lazy' alt='Flynar Logo' className='absolute bottom-0'/>
         </div>

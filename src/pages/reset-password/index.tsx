@@ -53,15 +53,15 @@ const ResetPassword = (): ReactElement => {
       setSuccessMessage(response.data.message)
       setTimeout(() => {
         void router.push('/login')
-      }, 1000)
+      }, 2000)
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
           setErrorMessage(error.response.data.message)
         } else {
           setErrorMessage('Terjadi Kesalahan, Coba Lagi')
+          console.error(error)
         }
-        console.error(error)
       } else {
         console.error(error)
       }
@@ -78,7 +78,7 @@ const ResetPassword = (): ReactElement => {
         <meta name='viewport' content='initial-scale=1.0, width=device-width' />
       </Head>
       <div id='reset-password-page' className='flex h-screen overflow-hidden'>
-        <div className='hidden lg:w-1/2 lg:relative lg:flex lg:px-8'>
+        <div className='hidden lg:w-1/2 relative lg:flex lg:px-8'>
           <Image src='/images/auth-background.png' fill={true} sizes='100%' priority={true} alt='Auth Page Background' className='object-cover'/>
           <Image src='/images/flynar-logo.png' width={200} height={200} loading='lazy' alt='Flynar Logo' className='absolute bottom-0'/>
         </div>

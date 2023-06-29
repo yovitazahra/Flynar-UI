@@ -8,6 +8,7 @@ import axios from 'axios'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import AuthPageLayout from '@/layouts/auth'
 import isEmailValid from '@/utils/isEmailValid'
+import { setCookie } from 'cookies-next'
 
 const Register = (): ReactElement => {
   const [showPassword, setShowPassword] = useState(false)
@@ -59,18 +60,19 @@ const Register = (): ReactElement => {
         password,
         phoneNumber
       })
+      setCookie('loggedEmail', email)
       setSuccessMessage('Registrasi berhasil')
       setTimeout(() => {
         void router.push('/verify-otp')
-      }, 1000)
+      }, 2000)
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
           setErrorMessage(error.response.data.message)
         } else {
           setErrorMessage('Terjadi Kesalahan, Coba Lagi')
+          console.error(error)
         }
-        console.error(error)
       } else {
         console.error(error)
       }
@@ -88,7 +90,7 @@ const Register = (): ReactElement => {
       </Head>
       <div id='register-page'>
         <div className='flex h-screen overflow-hidden'>
-          <div className='hidden lg:w-1/2 lg:relative lg:flex lg:px-8'>
+          <div className='hidden lg:w-1/2 relative lg:flex lg:px-8'>
             <Image src='/images/auth-background.png' fill={true} sizes='100%' priority={true} alt='Auth Page Background' className='object-cover'/>
             <Image src='/images/flynar-logo.png' width={200} height={200} loading='lazy' alt='Flynar Logo' className='absolute bottom-0'/>
           </div>
