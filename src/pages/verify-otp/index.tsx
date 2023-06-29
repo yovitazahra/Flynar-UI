@@ -6,8 +6,6 @@ import AuthPageLayout from '@/layouts/auth'
 import { useRouter } from 'next/router'
 import { getCookie } from 'cookies-next'
 import OtpInput from '@/components/OtpInput'
-import { start } from 'repl'
-import { count } from 'console'
 
 const VerifyOtp = (): ReactElement => {
   const router = useRouter()
@@ -17,6 +15,9 @@ const VerifyOtp = (): ReactElement => {
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   const [startCountdown, setStartCountdown] = useState<SetStateAction<any>>(null)
+
+  let secondTimer: any
+  let countdown = 60
 
   const onChangeOtp = (value: string): void => { setOtp(value) }
 
@@ -37,6 +38,17 @@ const VerifyOtp = (): ReactElement => {
     void resendOtp()
   }, [loggedEmail])
 
+  // useEffect(() => {
+  //   if (startCountdown === true) {
+  //     const interval = setInterval(() => {
+  //       if (secondTimer !== null) {
+  //         secondTimer.innerHTML = toString(60)
+  //       }
+  //     }, 1000)
+  //   } else {
+  //   }
+  // }, [startCountdown])
+
   const setLoggedEmailFromCookie = async (): Promise<void> => {
     const email: any = getCookie('loggedEmail')
     if (email !== undefined && email !== null && email !== '') {
@@ -44,10 +56,6 @@ const VerifyOtp = (): ReactElement => {
     } else {
       await router.push('/')
     }
-  }
-
-  const stopCountdown = (): void => {
-    setStartCountdown(false)
   }
 
   const resendOtp = async (): Promise<void> => {
@@ -59,8 +67,19 @@ const VerifyOtp = (): ReactElement => {
       if (loggedEmail !== '') {
         const response = await axios.put('http://localhost:8000/api/v1/resend-otp', { email: loggedEmail })
         setSuccessMessage(response.data.message)
+        const interval = setInterval(() => {
+          secondTimer = document?.querySelector('.second-timer')
+          if (secondTimer !== undefined && secondTimer !== null) {
+            countdown--
+            secondTimer.innerHTML = countdown.toString()
+          }
+        }, 1000)
         setStartCountdown(true)
-        setTimeout(stopCountdown, 60000)
+        setTimeout(() => {
+          setStartCountdown(false)
+          clearInterval(interval)
+          countdown = 60
+        }, 60000)
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -128,7 +147,7 @@ const VerifyOtp = (): ReactElement => {
               }
               {
                 startCountdown === true
-                  ? <p>Kirim ulang OTP dalam beberapa saat</p>
+                  ? <p>Anda dapat meminta ulang OTP dalam <span className='second-timer'></span> detik</p>
                   : startCountdown === false
                     ? <button type='button' onClick={() => { void resendOtp() }} className='text-white rounded-2xl px-6 py-3 text-sm bg-purple-600 w-fit mx-auto'>Kirim Ulang</button>
                     : null
