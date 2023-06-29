@@ -6,7 +6,7 @@ import { FiEye, FiEyeOff } from 'react-icons/fi'
 import axios from 'axios'
 import AuthPageLayout from '@/layouts/auth'
 import { useRouter } from 'next/router'
-import { setCookie } from 'cookies-next'
+import { deleteCookie, setCookie } from 'cookies-next'
 
 const Login = (): ReactElement => {
   const router = useRouter()
@@ -43,6 +43,7 @@ const Login = (): ReactElement => {
       setIsLoading(true)
       setErrorMessage('')
       const response = await axios.post('http://localhost:8000/api/v1/login', { identifier: email, password })
+      deleteCookie('loggedEmail')
       sessionStorage.setItem('accessToken', response.data.accessToken)
       if (response.status === 200) {
         await router.push('/')

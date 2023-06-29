@@ -46,17 +46,17 @@ const VerifyOtp = (): ReactElement => {
       setErrorMessage('Silahkan Login')
       setTimeout(() => {
         void router.push('/')
-      }, 2000)
+      }, 2500)
     }
   }
 
   const resendOtp = async (): Promise<void> => {
     try {
       setIsLoading(true)
-      setErrorMessage('')
-      setSuccessMessage('')
       setStartCountdown(null)
       if (loggedEmail !== '') {
+        setErrorMessage('')
+        setSuccessMessage('')
         const response = await axios.put('http://localhost:8000/api/v1/resend-otp', { email: loggedEmail })
         setSuccessMessage(response.data.message)
         const interval = setInterval(() => {
