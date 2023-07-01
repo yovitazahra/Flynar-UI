@@ -7,6 +7,7 @@ import Header from '../../components/Header'
 import axios from 'axios'
 import { Modal } from 'flowbite'
 import type { ModalOptions, ModalInterface } from 'flowbite'
+import Link from 'next/Link'
 
 const SearchFlight = (): ReactElement => {
   const [filterParameter, setFilterParameter] = useState('Harga - Termurah')
@@ -35,7 +36,7 @@ const SearchFlight = (): ReactElement => {
         <div>
           <div className='flex gap-3 pb-[20px]'>
             <span className='flex bg-violet text-white text-base font-medium border rounded-md items-center w-[700px] h-[50px]'>
-              <button className='px-[15px]' ><FontAwesomeIcon icon={faArrowLeft} /></button>
+              <Link href={'/'}><button className='px-[15px]' ><FontAwesomeIcon icon={faArrowLeft} /></button></Link>
             Fasilitas JKT {'>'} MLB  - 2 Penumpang - Economy</span>
             <div className='search-green-button'>
               <button className='w-[220px] h-[50px] bg-hijau shadow-3xl border rounded-md '><span className='font-bold text-base text-white'>Ubah Pencarian</span></button>
@@ -142,25 +143,25 @@ const SearchFlight = (): ReactElement => {
                   </div>
                   <h2 id='accordion-collapse-heading-2'>
                     <button type='button' className='flex items-center justify-between w-full p-5 font-medium text-left text-gray-500' data-accordion-target='#accordion-collapse-body-2' aria-expanded='false' aria-controls='accordion-collapse-body-2'>
-                      <span><FontAwesomeIcon className='pr-[5px]' icon={faHeart}/>Harga</span>
+                      <span><FontAwesomeIcon className='pr-[5px]' icon={faDollarSign}/>Harga</span>
                       <svg data-accordion-icon className='w-6 h-6 shrink-0' fill='currentColor' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'><path fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'></path></svg>
                     </button>
                   </h2>
                   <div id='accordion-collapse-body-2' className='hidden' aria-labelledby='accordion-collapse-heading-2'>
                     <div className='price-filter-section p-5'>
-                      <div className="start-from">
+                      <div className='start-from'>
                         <form>
-                          <div class="grid md:grid-cols-2 md:gap-6">
-                            <div class="relative z-0 w-full mb-6 group">
-                              <input type="text" name="floating_first_name" id="floating_first_name" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                              <label for="floating_first_name" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Mulai</label>
+                          <div className='grid md:grid-cols-2 md:gap-6'>
+                            <div className='relative z-0 w-full mb-6 group'>
+                              <input type='text' name='floating_first_name' id='floating_first_name' className='block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer' placeholder=' ' required />
+                              <label className='peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6'>Mulai</label>
                             </div>
-                            <div class="relative z-0 w-full mb-6 group">
-                              <input type="text" name="floating_last_name" id="floating_last_name" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                              <label for="floating_last_name" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Sampai</label>
+                            <div className='relative z-0 w-full mb-6 group'>
+                              <input type='text' name='floating_last_name' id='floating_last_name' className='block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer' placeholder=' ' required />
+                              <label className='peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6'>Sampai</label>
                             </div>
                           </div>
-                          <button type="submit" class="text-white bg-darkPurple hover:bg-violet focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Pilih</button>
+                          <button type='submit' className='text-white bg-darkPurple hover:bg-violet focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'>Cari</button>
                         </form>
                       </div>
                     </div>
