@@ -1,75 +1,203 @@
-import type { ReactElement } from 'react'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
-import Notifications from '@/components/Notifications'
-import BadgeBeranda from '@/components/BadgeBeranda'
-import React from 'react'
-import Link from 'next/Link'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHeart, faDollarSign, faArrowLeft, faArrowUp, faArrowDown, faCube, faCubes, faEdit, faUserEdit, faGear, faSignOut } from '@fortawesome/free-solid-svg-icons'
+import { useEffect, useState, type ReactElement } from 'react'
+import DefaultLayout from '@/layouts/default'
+import MenuHeader from '@/components/MenuHeader'
+import { FiEdit3, FiSettings, FiLogOut } from 'react-icons/fi'
+import Head from 'next/head'
+import axios from 'axios'
+import { useRouter } from 'next/router'
 
+const Account = (): ReactElement => {
+  useEffect(() => {
+    void fetchUser()
+  }, [])
 
-const Akun = (): ReactElement => {
+  const router = useRouter()
+  const [name, setName] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [email, setEmail] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
+
+  useEffect(() => {
+    if (errorMessage !== '') {
+      setErrorMessage('')
+    }
+    if (successMessage !== '') {
+      setSuccessMessage('')
+    }
+  }, [name, phoneNumber])
+
+  const fetchUser = async (): Promise<void> => {
+    const accessToken = sessionStorage.getItem('accessToken')
+    try {
+      setIsLoading(true)
+      setErrorMessage('')
+      const response = await axios.get('http://localhost:8000/api/v1/profile', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        },
+        withCredentials: true
+      })
+      setName(response.data.data.name)
+      setPhoneNumber(response.data.data.phoneNumber)
+      setEmail(response.data.data.email)
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
+          if (error.response.data.message === 'Silahkan Login') {
+            setErrorMessage(error.response.data.message)
+            setTimeout(() => {
+              void router.push('/login')
+            }, 2000)
+          } else {
+            setErrorMessage(error.response.data.message)
+          }
+        } else {
+          console.error(error)
+        }
+      } else {
+        console.error(error)
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const updateProfile = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+    e.preventDefault()
+    const accessToken = sessionStorage.getItem('accessToken')
+    setIsLoading(true)
+    setErrorMessage('')
+    setSuccessMessage('')
+    try {
+      const response = await axios.put('http://localhost:8000/api/v1/profile/update', { name, phoneNumber }, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        },
+        withCredentials: true
+      })
+      setSuccessMessage('Profil Berhasil Diubah')
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
+          if (error.response.data.message === 'Silahkan Login') {
+            setErrorMessage(error.response.data.message)
+            setTimeout(() => {
+              void router.push('/login')
+            }, 2000)
+          } else {
+            setErrorMessage(error.response.data.message)
+          }
+        } else {
+          console.error(error)
+        }
+      } else {
+        console.error(error)
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const logout = async (): Promise<void> => {
+    const response = await axios.delete('http://localhost:8000/api/v1/logout', {
+      withCredentials: true
+    })
+    setSuccessMessage('Terima Kasih')
+    setTimeout(() => {
+      void router.push('/login')
+    }, 2000)
+  }
+
   return (
-    <div>
-      <Header/>
-      <div className='container flex justify-center pt-[30px] pb-[20px] border-b-2 border-abu shadow-lg'>
-        <div className='badge w-[980px]'>
-          <div className='akun text-medium font-bold leading-short'>
-                Akun
-          </div>
-          <BadgeBeranda/>
-        </div>
-      </div>
-      <div className='container flex justify-center pt-[30px] pb-[20px]'>
-        <div className='flex gap-16'>
-          <div className='account-edit-option flex flex-col'>
-            <div className='w-[328px]  border-b-2 border-abumuda'>
-              <Link href={'/account'}><button className='p-[15px]'><FontAwesomeIcon className='pr-[5px] text-darkPurple' icon={faUserEdit} /> Ubah Profil </button></Link>
+    <>
+      <Head>
+        <title>Account</title>
+      </Head>
+      <div id='account-page' className=''>
+        <main className='container mx-auto'>
+          <MenuHeader pageTitle={'Akun'} />
+          <div className='flex justify-center flex-col gap-y-4 lg:flex-row lg:gap-y-0 w-4/5 mx-auto gap-x-8'>
+            <div className='lg:w-2/5 flex flex-col'>
+              <div className='border-b-2'>
+                <button className='flex gap-x-2 items-center py-4'>
+                  <FiEdit3 />
+                  Ubah Profil
+                </button>
+              </div>
+              <div className='border-b-2'>
+                <button className='flex gap-x-2 items-center py-4'>
+                  <FiSettings />
+                  Pengaturan Akun
+                </button>
+              </div>
+              <div className='border-b-2'>
+                <button className='flex gap-x-2 items-center py-4' onClick={() => { void logout() }}>
+                  <FiLogOut />
+                  Keluar
+                </button>
+              </div>
+              <div className='flex mt-6 mb-2'>
+                <span className={`${errorMessage === '' && successMessage === '' ? 'h-0 w-0 opacity-0' : 'h-fit w-fit opacity-100 px-6 py-2'} duration-300 text-sm mx-auto text-white rounded-2xl text-center ${errorMessage !== '' && 'bg-red-600'} ${successMessage !== '' && 'bg-green-400'}`}>
+                  {
+                    errorMessage === '' && successMessage === ''
+                      ? ''
+                      : errorMessage !== ''
+                        ? errorMessage
+                        : successMessage
+                  }
+                </span>
+              </div>
             </div>
-            <div className='w-[328px]  border-b-2 border-abumuda'>
-              <Link href={'/'}><button className='p-[15px]'><FontAwesomeIcon className='pr-[5px] text-darkPurple' icon={faGear} /> Pengaturan Akun </button></Link>
-            </div>
-            <div className='w-[328px]  border-b-2 border-abumuda'>
-              <Link href={'/'}><button className='p-[15px]'><FontAwesomeIcon className='pr-[5px] text-darkPurple' icon={faSignOut} /> Keluar </button></Link>
-            </div>
-          </div>
-          <div className='editable-account-option w-[518px] h-[462px] py-[6px] px-[16px]'>
-            <div className='shadow border-2'>
-              <div className='p-[16px]'>
-                <p className='text-medium font-bold'>Ubah Data Profil</p>
-                <div className='py-[20px]'>
-                  <div className='bg-violet text-white px-[16px] py-[8px] rounded-t-[10px]'>Data Diri</div>
-                  <div className='p-[10px]'>
-                    <form>
-                      <div className='mb-6'>
-                        <label className='block mb-2 text-[14px] text-brightPurple font-bold text-gray-900 dark:text-white'>Nama Lengkap </label>
-                        <input type='name' id='name' className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-[4px] focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500' placeholder='' required/>
-                      </div>
-                      <div className='mb-6'>
-                        <label className='block mb-2 text-[14px] text-brightPurple font-bold text-gray-900 dark:text-white'>Nomor Telepon</label>
-                        <input type='tel' id='tel' className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-[4px] focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500' required/>
-                      </div>
-                      <div className='mb-6'>
-                        <label className='block mb-2 text-[14px] text-brightPurple font-bold text-gray-900 dark:text-white'>Email</label>
-                        <input type='email' id='email' className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-[4px] focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500' required/>
-                      </div>
-                      <div className='flex justify-center'>
-                        <button type='submit' className='text-white bg-darkPurple hover:bg-violet focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'>Submit</button>
-                      </div>
-                    </form>
+            <div className='lg:w-3/5'>
+              <div className='border-2'>
+                <div className='p-4'>
+                  <p className='font-bold'>Ubah Data Profil</p>
+                  <div className='py-5'>
+                    <div className='bg-blue-700 text-white px-4 py-2 rounded-t-[10px] mb-4'>Data Diri</div>
+                    <div className='p-[10px]'>
+                      <form className='flex flex-col gap-y-6' onSubmit={(e) => { void updateProfile(e) } } action=''>
+                        <div>
+                          <label className='block mb-2 font-bold' htmlFor='name'>Nama Lengkap</label>
+                          <input type='name' value={name} id='name' onChange={(e) => { setName(e.target.value) }} className='w-full border rounded-md p-2' placeholder='' required/>
+                        </div>
+                        <div>
+                          <label className='block mb-2 font-bold' htmlFor='tel'>Nomor Telepon</label>
+                          <input type='number' value={phoneNumber} id='tel' onChange={(e) => { setPhoneNumber(e.target.value) }} className='w-full border rounded-md p-2' placeholder='' required/>
+                        </div>
+                        <div>
+                          <label className='block mb-2 font-bold' htmlFor='email'>Email</label>
+                          <input type='email' value={email} id='email' onChange={(e) => { setEmail(e.target.value) }} className='w-full border rounded-md p-2 bg-gray-100' placeholder='' required disabled={true}/>
+                        </div>
+                        <div className='flex justify-center'>
+                          <button type='submit' className={`text-white font-medium rounded-lg text-sm w-fit px-5 py-2.5 text-center ${isLoading ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-700'}`} disabled={isLoading}>
+                            {
+                              isLoading
+                                ? 'Tunggu Sebentar'
+                                : 'Simpan'
+                            }
+                          </button>
+                        </div>
+                      </form>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-            cek
           </div>
-        </div>
+        </main>
       </div>
-      cek3
-    </div>
+    </>
   )
 }
 
-export default Akun
+Account.getLayout = function getLayout (page: ReactElement) {
+  return (
+    <DefaultLayout>
+      {page}
+    </DefaultLayout>
+  )
+}
 
+export default Account

@@ -6,7 +6,6 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font: poppins;
 }
 
 textarea:focus, input:focus{
@@ -19,4 +18,14 @@ textarea:focus, input:focus{
 
 input::-ms-reveal, input::-ms-clear {
   display: none;
+}
+
+.auth-bg-2 {
+  background-image: url('../../public/images/auth-background-2.jpg');
+  background-size: cover;
+}
+
+.toggle-password > svg {
+  height: 90%;
+  width: 90%;
 }
