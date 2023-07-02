@@ -42,7 +42,9 @@ const Login = (): ReactElement => {
     try {
       setIsLoading(true)
       setErrorMessage('')
-      const response = await axios.post('http://localhost:8000/api/v1/login', { identifier: email, password })
+      const response = await axios.post('http://localhost:8000/api/v1/login', { identifier: email, password }, {
+        withCredentials: true
+      })
       deleteCookie('loggedEmail')
       sessionStorage.setItem('accessToken', response.data.accessToken)
       if (response.status === 200) {

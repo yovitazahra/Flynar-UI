@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react'
 import DefaultLayout from '@/layouts/default'
+import React, { useState } from 'react'
 
 const Home = (): ReactElement => {
   return (

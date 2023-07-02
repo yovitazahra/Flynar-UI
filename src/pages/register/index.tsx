@@ -61,7 +61,7 @@ const Register = (): ReactElement => {
         phoneNumber
       })
       setCookie('loggedEmail', email)
-      setSuccessMessage('Registrasi berhasil')
+      setSuccessMessage('Registrasi Berhasil')
       setTimeout(() => {
         void router.push('/verify-otp')
       }, 2000)
@@ -108,7 +108,7 @@ const Register = (): ReactElement => {
                   </div>
                   <div className='flex flex-col gap-y-2'>
                     <label htmlFor='phoneNumber'>Nomor Telepon</label>
-                    <input type='text' value={phoneNumber} autoComplete='off' autoCorrect='false' placeholder='08...' id='phoneNumber' className={`${isNaN(parseInt(phoneNumber)) && phoneNumber.length > 0 && 'wrong-input'} border rounded-2xl px-4 py-3`} onChange={(e) => { setPhoneNumber(e.target.value) }}/>
+                    <input type='number' value={phoneNumber} autoComplete='off' autoCorrect='false' placeholder='08...' id='phoneNumber' className={`${isNaN(parseInt(phoneNumber)) && phoneNumber.length > 0 && 'wrong-input'} border rounded-2xl px-4 py-3`} onChange={(e) => { setPhoneNumber(e.target.value) }}/>
                   </div>
                   <div className='flex flex-col gap-y-2'>
                     <label htmlFor='password'>Password</label>
