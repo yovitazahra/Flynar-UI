@@ -4,6 +4,7 @@ import MenuHeader from '@/components/MenuHeader'
 import { FiEdit3, FiSettings, FiLogOut } from 'react-icons/fi'
 import Head from 'next/head'
 import axios from 'axios'
+import Header from '@/components/Header'
 import { useRouter } from 'next/router'
 
 const Account = (): ReactElement => {
@@ -11,6 +12,23 @@ const Account = (): ReactElement => {
     void fetchUser()
   }, [])
 
+  useEffect(() => {
+    void checkLoggedIn()
+  }, [])
+
+  const checkLoggedIn = async (): Promise<void> => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/v1/token', {
+        withCredentials: true
+      })
+      sessionStorage.setItem('accessToken', response.data.accessToken)
+      setIsLoggedIn(true)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const router = useRouter()
   const [name, setName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
@@ -116,6 +134,7 @@ const Account = (): ReactElement => {
         <title>Account</title>
       </Head>
       <div id='account-page' className=''>
+        <Header isLoggedIn={isLoggedIn} login={async () => {}}/>
         <main className='mx-auto'>
           <MenuHeader pageTitle={'Akun'} />
           <div className='container flex justify-center flex-col gap-y-4 lg:flex-row lg:gap-y-0 w-4/5 mx-auto gap-x-8'>
