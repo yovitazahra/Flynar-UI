@@ -116,9 +116,9 @@ const Account = (): ReactElement => {
         <title>Account</title>
       </Head>
       <div id='account-page' className=''>
-        <main className='container mx-auto'>
+        <main className='mx-auto'>
           <MenuHeader pageTitle={'Akun'} />
-          <div className='flex justify-center flex-col gap-y-4 lg:flex-row lg:gap-y-0 w-4/5 mx-auto gap-x-8'>
+          <div className='container flex justify-center flex-col gap-y-4 lg:flex-row lg:gap-y-0 w-4/5 mx-auto gap-x-8'>
             <div className='lg:w-2/5 flex flex-col'>
               <div className='border-b-2'>
                 <button className='flex gap-x-2 items-center py-4'>
@@ -152,11 +152,11 @@ const Account = (): ReactElement => {
             </div>
             <div className='lg:w-3/5'>
               <div className='border-2'>
-                <div className='p-4'>
+                <div className='p-6'>
                   <p className='font-bold'>Ubah Data Profil</p>
-                  <div className='py-5'>
+                  <div className='pt-5'>
                     <div className='bg-blue-700 text-white px-4 py-2 rounded-t-[10px] mb-4'>Data Diri</div>
-                    <div className='p-[10px]'>
+                    <div className='px-3 pt-3'>
                       <form className='flex flex-col gap-y-6' onSubmit={(e) => { void updateProfile(e) } } action=''>
                         <div>
                           <label className='block mb-2 font-bold' htmlFor='name'>Nama Lengkap</label>
