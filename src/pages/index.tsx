@@ -305,8 +305,8 @@ const Home = (): ReactElement => {
                     <div className='flex flex-wrap justify-center'>
                       {
                         tickets.map((ticket: any, index) => (
-                          <div key={index} className='card mr-2 mb-2 shadow-sm'>
-                            <Image src={`/images/destination/${ticket.flight.arrivalCity}.jpg`} width={200} height={200} loading='lazy' alt={ticket.flight.arrivalCity} className='rounded-lg'/>
+                          <div key={index} className='card mr-2 mb-2 p-2 h-fit shadow-sm w-[300px] sm:w-[400px] md:w-[250px] lg:w-[200px] border-2 rounded-md'>
+                            <Image src={`/images/destination/${ticket.flight.arrivalCity}.jpg`} width={200} height={200} loading='lazy' alt={ticket.flight.arrivalCity} className='w-full rounded-lg'/>
                             <div className='text-sm font-semibold'>
                               <span>{ticket.flight.departureCity} {' '}</span>
                               <span>{'-> '}</span>
