@@ -11,7 +11,7 @@ interface IHeaderProps {
 const Header = ({ isLoggedIn, login }: IHeaderProps): ReactElement => {
   return (
     <>
-      <header className='flex w-full h-fit border-b-2 py-4'>
+      <header className='flex w-full h-fit border-b-2 py-4 px-4 lg:px-0'>
         <div className='container mx-auto flex justify-between h-12 items-center'>
           <Image src='/images/flynar-logo.png' width={100} height={100} loading='lazy' alt='Flynar Logo' className='h-full w-auto'/>
           {
