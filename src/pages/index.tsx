@@ -21,11 +21,12 @@ const Home = (): ReactElement => {
   const [adult, setAdult] = useState(1)
   const [child, setChild] = useState(0)
   const [baby, setBaby] = useState(0)
+  const [showPassenger, setShowPassenger] = useState(false)
+  const [totalPassenger, setTotalPassenger] = useState(0)
   const [classSeat, setClassSeat] = useState('Economy')
   const [isRoundTrip, setIsRoundTrip] = useState(false)
   const [tickets, setTickets] = useState([])
   const [favoriteDestination, setFavoriteDestination] = useState('')
-  const [showPassenger, setShowPassenger] = useState(false)
   
   useEffect(() => {
     void checkLoggedIn()
@@ -138,6 +139,11 @@ const Home = (): ReactElement => {
   const handleClosePassenger = () => {
     setShowPassenger(false)
   }
+  const handleSave = () => {
+    const total = adult + child + baby
+    setTotalPassenger(total)
+    togglePassenger()
+  }
 
   return (
     <>
@@ -247,7 +253,7 @@ const Home = (): ReactElement => {
                             <div className='mb-2 border-b-2 border-gray-400 xl:w-[49%] lg:w-[49%] md:w-[49%] sm:w-[100%]'>
                               <p className='text-gray-400 font-normal text-base leading-6'>Passengers</p>
                               <div className='py-3 relative'>
-                                <span onClick={togglePassenger} className='cursor-pointer'>Penumpang</span>
+                                <span onClick={togglePassenger} className='cursor-pointer'>{totalPassenger} Penumpang</span>
                                 {showPassenger && (
                                   <div className='bg-white rounded-md shadow-md absolute w-full'>
                                     <div className='relative'>
@@ -266,6 +272,11 @@ const Home = (): ReactElement => {
                                     <div className='w-full flex justify-between p-2'>
                                       <label htmlFor='baby'>Baby</label>
                                       <input className='w-[45px] pl-2 border-2 border-gray-300 rounded-lg' type='number' id='baby' value={baby} onChange={(e) => { setBaby(parseInt(e.target.value)) }}/>
+                                    </div>
+                                    <div className='flex justify-end'>
+                                      <button className='p-1 m-1 text-sm text-white bg-blue-700 rounded-lg' onClick={handleSave}>
+                                          simpan
+                                        </button>
                                     </div>
                                   </div>
                                 )}
