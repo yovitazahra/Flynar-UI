@@ -21,12 +21,13 @@ const Home = (): ReactElement => {
   const [adult, setAdult] = useState(1)
   const [child, setChild] = useState(0)
   const [baby, setBaby] = useState(0)
+  const [showPassenger, setShowPassenger] = useState(false)
+  const [totalPassenger, setTotalPassenger] = useState(1)
   const [classSeat, setClassSeat] = useState('Economy')
   const [isRoundTrip, setIsRoundTrip] = useState(false)
   const [tickets, setTickets] = useState([])
   const [favoriteDestination, setFavoriteDestination] = useState('')
-  const [showPassenger, setShowPassenger] = useState(false)
-  
+
   useEffect(() => {
     void checkLoggedIn()
     void fetchTickets()
@@ -99,7 +100,7 @@ const Home = (): ReactElement => {
       const response = await axios.get(`http://localhost:8000/api/v1/search?arrivalCity=${favoriteDestination}`, {
         withCredentials: true
       })
-      setTickets(response.data.data.slice(0, 5))
+      setTickets(response.data.data.slice(0, 4))
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error(error)
@@ -126,17 +127,22 @@ const Home = (): ReactElement => {
     void router.push(`/search?departureCity=${departureCity}&arrivalCity=${arrivalCity}&classSeat=${classSeat}&total=${total}&departureDate=${formatDate(departureDate)}&arrivalDate=${formatDate(arrivalDate)}&isRoundTrip=${isRoundTrip}`)
   }
 
-  const handleSwapCities = () => {
+  const handleSwapCities = (): void => {
     const tempCity = departureCity
     setDepartureCity(arrivalCity)
     setArrivalCity(tempCity)
   }
 
-  const togglePassenger = () => {
+  const togglePassenger = (): void => {
     setShowPassenger(!showPassenger)
   }
-  const handleClosePassenger = () => {
+  const handleClosePassenger = (): void => {
     setShowPassenger(false)
+  }
+  const handleSave = (): void => {
+    const total = adult + child + baby
+    setTotalPassenger(total)
+    togglePassenger()
   }
 
   return (
@@ -168,7 +174,7 @@ const Home = (): ReactElement => {
                 <form onSubmit={(e) => { searchFlight(e) }} action=''>
                   <div className='container bg-white p-5 shadow-md rounded-t-lg'>
                     <p className='text-xs font-bold leading-9 mb-5 xl:text-2xl lg:text-xl md:text-lg sm:text-sm'>
-                      Pilih Jadwal Penerbangan Spesial di 
+                      Pilih Jadwal Penerbangan Spesial di
                       <span className='text-blue-700'> Flynar!</span>
                     </p>
                     <div className='flex flex-col relative xl:flex-row xl:justify-between lg:relative lg:flex-col lg:items-center md:relative md:flex-col md:items-center sm:relative sm:flex-col sm:items-center'>
@@ -247,7 +253,7 @@ const Home = (): ReactElement => {
                             <div className='mb-2 border-b-2 border-gray-400 xl:w-[49%] lg:w-[49%] md:w-[49%] sm:w-[100%]'>
                               <p className='text-gray-400 font-normal text-base leading-6'>Passengers</p>
                               <div className='py-3 relative'>
-                                <span onClick={togglePassenger} className='cursor-pointer'>Penumpang</span>
+                                <span onClick={togglePassenger} className='cursor-pointer'>{totalPassenger} Penumpang</span>
                                 {showPassenger && (
                                   <div className='bg-white rounded-md shadow-md absolute w-full'>
                                     <div className='relative'>
@@ -266,6 +272,11 @@ const Home = (): ReactElement => {
                                     <div className='w-full flex justify-between p-2'>
                                       <label htmlFor='baby'>Baby</label>
                                       <input className='w-[45px] pl-2 border-2 border-gray-300 rounded-lg' type='number' id='baby' value={baby} onChange={(e) => { setBaby(parseInt(e.target.value)) }}/>
+                                    </div>
+                                    <div className='flex justify-end'>
+                                      <button className='p-1 m-1 text-sm text-white bg-blue-700 rounded-lg' onClick={handleSave}>
+                                          simpan
+                                      </button>
                                     </div>
                                   </div>
                                 )}
@@ -302,10 +313,10 @@ const Home = (): ReactElement => {
                         <button className='text-sm lg:text-base mr-3 mb-3 px-2 lg:px-3 py-1 lg:py-2 shadow rounded-lg bg-blue-200 text-gray-500' onClick={() => { changeFavoriteDestination(city[1]) }} key={index} value={city[1]}>{city[0]}</button>
                       ))}
                     </div>
-                    <div className='flex flex-wrap justify-center'>
+                    <div className='mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 justify-start gap-6'>
                       {
                         tickets.map((ticket: any, index) => (
-                          <div key={index} className='card mr-2 mb-2 p-2 h-fit shadow-sm w-[300px] sm:w-[400px] md:w-[250px] lg:w-[200px] border-2 rounded-md'>
+                          <div key={index} className='card p-2 h-fit shadow-sm w-full border-2 rounded-md'>
                             <Image src={`/images/destination/${ticket.flight.arrivalCity}.jpg`} width={200} height={200} loading='lazy' alt={ticket.flight.arrivalCity} className='w-full rounded-lg'/>
                             <div className='text-sm font-semibold'>
                               <span>{ticket.flight.departureCity} {' '}</span>
