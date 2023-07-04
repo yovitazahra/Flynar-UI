@@ -23,7 +23,7 @@ const Notification = (): ReactElement => {
 
   const checkLoggedIn = async (): Promise<void> => {
     try {
-      const response = await axios.get('http://localhost:8000/api/v1/token', {
+      const response = await axios.get(`${process.env.REST_API_ENDPOINT}token`, {
         withCredentials: true
       })
       sessionStorage.setItem('accessToken', response.data.accessToken)
@@ -36,7 +36,7 @@ const Notification = (): ReactElement => {
   const fetchNotifiaction = async (): Promise<void> => {
     const accessToken = sessionStorage.getItem('accessToken')
     try {
-      const response = await axios.get('http://localhost:8000/api/v1/notification', {
+      const response = await axios.get(`${process.env.REST_API_ENDPOINT}notification`, {
         headers: {
           Authorization: `Bearer ${accessToken}`
         },
@@ -65,7 +65,7 @@ const Notification = (): ReactElement => {
   const readNotification = async (id: number): Promise<void> => {
     const accessToken = sessionStorage.getItem('accessToken')
     try {
-      const response = await axios.put('http://localhost:8000/api/v1/notification', { id }, {
+      const response = await axios.put(`${process.env.REST_API_ENDPOINT}notification`, { id }, {
         headers: {
           Authorization: `Bearer ${accessToken}`
         },

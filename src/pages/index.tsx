@@ -61,7 +61,7 @@ const Home = (): ReactElement => {
 
   const checkLoggedIn = async (): Promise<void> => {
     try {
-      const response = await axios.get('http://localhost:8000/api/v1/token', {
+      const response = await axios.get(`${process.env.REST_API_ENDPOINT}token`, {
         withCredentials: true
       })
       sessionStorage.setItem('accessToken', response.data.accessToken)
@@ -73,7 +73,7 @@ const Home = (): ReactElement => {
 
   const login = async (): Promise<void> => {
     try {
-      const response = await axios.post('http://localhost:8000/api/v1/login', { identifier: '', password: '' }, {
+      const response = await axios.post(`${process.env.REST_API_ENDPOINT}login`, { identifier: '', password: '' }, {
         withCredentials: true
       })
       sessionStorage.setItem('accessToken', response.data.accessToken)
@@ -97,7 +97,7 @@ const Home = (): ReactElement => {
 
   const fetchTickets = async (): Promise<void> => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/v1/search?arrivalCity=${favoriteDestination}`, {
+      const response = await axios.get(`${process.env.REST_API_ENDPOINT}search?arrivalCity=${favoriteDestination}`, {
         withCredentials: true
       })
       setTickets(response.data.data.slice(0, 4))

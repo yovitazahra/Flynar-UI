@@ -18,7 +18,7 @@ const Account = (): ReactElement => {
 
   const checkLoggedIn = async (): Promise<void> => {
     try {
-      const response = await axios.get('http://localhost:8000/api/v1/token', {
+      const response = await axios.get(`${process.env.REST_API_ENDPOINT}token`, {
         withCredentials: true
       })
       sessionStorage.setItem('accessToken', response.data.accessToken)
@@ -51,7 +51,7 @@ const Account = (): ReactElement => {
     try {
       setIsLoading(true)
       setErrorMessage('')
-      const response = await axios.get('http://localhost:8000/api/v1/profile', {
+      const response = await axios.get(`${process.env.REST_API_ENDPOINT}profile`, {
         headers: {
           Authorization: `Bearer ${accessToken}`
         },
@@ -89,7 +89,7 @@ const Account = (): ReactElement => {
     setErrorMessage('')
     setSuccessMessage('')
     try {
-      const response = await axios.put('http://localhost:8000/api/v1/profile/update', { name, phoneNumber }, {
+      const response = await axios.put(`${process.env.REST_API_ENDPOINT}profile/update`, { name, phoneNumber }, {
         headers: {
           Authorization: `Bearer ${accessToken}`
         },
@@ -119,7 +119,7 @@ const Account = (): ReactElement => {
   }
 
   const logout = async (): Promise<void> => {
-    const response = await axios.delete('http://localhost:8000/api/v1/logout', {
+    const response = await axios.delete(`${process.env.REST_API_ENDPOINT}logout`, {
       withCredentials: true
     })
     setSuccessMessage('Terima Kasih')
