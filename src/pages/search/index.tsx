@@ -7,34 +7,38 @@ import Image from 'next/image'
 import Header from '../../components/Header'
 import axios from 'axios'
 import { useRouter } from 'next/router'
+import dynamic from "next/dynamic";
 
 const SearchFlight = (): ReactElement => {
     const router = useRouter()
-    const { departureCity, arrivalCity, selectedClass, passengerSum, classSeat } = router.query
+    const { departureCity, arrivalCity, selectedClass, passengerSum, classSeat, filterKey } = router.query
 
     const [filterParameter, setFilterParameter] = useState('Harga - Termurah')
-    const [flightData, setFlightData] = useState([])
-    const [ticketData, setTicketData] = useState([])
-    const [searchData, setSearchData] = useState([])
+    const [searchFlightTickets, setSearchFlightTickets] = useState([])
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 
-    const getFlightData = async () => {
-        const response = await axios.get('http://localhost:8000/api/v1/flights')
-        setFlightData(response.data.flights)
-    }
-
-    const getTicketData = async () => {
-        const response = await axios.get('http://localhost:8000/api/v1/tickets')
-        // setTicketData(response)
-    }
-
-    const getSearchData = async (): Promise<void> => {
+    const getSearchFlightTickets = async (): Promise<void> => {
         try {
             const response = await axios.get(`${process.env.REST_API_ENDPOINT}search?departureCity=${departureCity}&arrivalCity=${arrivalCity}&classSeat=${classSeat}`, {
                 withCredentials: true
             })
             console.log(response.data.data)
-            setSearchData(response.data.data.slice(0, 4))
+            setSearchFlightTickets(response.data.data.slice(0, 4))
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.error(error)
+            } else {
+                console.error(error)
+            }
+        }
+    }
+    const filterFlightTickets = async (): Promise<void> => {
+        try {
+            const response = await axios.get(`${process.env.REST_API_ENDPOINT}filter?sortBy=${filterKey}`, {
+                withCredentials: true
+            })
+            console.log(response.data.data)
+            setSearchFlightTickets(response.data.data.slice(0, 4))
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 console.error(error)
@@ -44,11 +48,9 @@ const SearchFlight = (): ReactElement => {
         }
     }
 
-
     useEffect(() => {
-        getFlightData()
-        getTicketData()
-        getSearchData()
+        getSearchFlightTickets()
+        filterFlightTickets()
     }, [])
 
     const onOptionChange = e => {
@@ -187,12 +189,13 @@ const SearchFlight = (): ReactElement => {
                 </table>
 
                 <div className='mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 justify-start gap-6'>
-                    {searchData.map((ticket: any, index) => (
-                        <ul key={index + 1} className='border'>
+                    {searchFlightTickets.map((ticket: any, index) => (
+                        <ul key={ticket.id} className='border'>
                             <li className='w-40 text-center'>maskapai : {ticket.flight.airline}</li>
                             <li className='w-40 text-center'>departure : {ticket.flight.departureCity}</li>
                             <li className='w-40 text-center'>arrival : {ticket.flight.arrivalCity}</li>
                             <li className='w-40 text-center'>seat : {ticket.classSeat}</li>
+                            <li className='w-40 text-center'>harga : {ticket.price}</li>
                         </ul>
                     )
                     )
@@ -203,4 +206,4 @@ const SearchFlight = (): ReactElement => {
     )
 }
 
-export default SearchFlight
+export default dynamic (()=> Promise.resolve(SearchFlight), {ssr:false})
