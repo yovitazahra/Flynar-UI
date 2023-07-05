@@ -43,7 +43,7 @@ const Login = (): ReactElement => {
       setIsLoading(true)
       setErrorMessage('')
       const response = await axios.post(`${process.env.REST_API_ENDPOINT}login`, { identifier: email, password }, {
-        withCredentials: true
+        
       })
       deleteCookie('loggedEmail')
       sessionStorage.setItem('accessToken', response.data.accessToken)
