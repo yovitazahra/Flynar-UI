@@ -98,7 +98,7 @@ const Home = (): ReactElement => {
   const fetchTickets = async (): Promise<void> => {
     try {
       const response = await axios.get(`${process.env.REST_API_ENDPOINT}search?arrivalCity=${favoriteDestination}`, {
-        withCredentials: true
+        withCredentials: false
       })
       setTickets(response.data.data.slice(0, 4))
     } catch (error) {

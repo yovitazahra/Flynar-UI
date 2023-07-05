@@ -11,31 +11,17 @@ import dynamic from "next/dynamic";
 
 const SearchFlight = (): ReactElement => {
     const router = useRouter()
-    const { departureCity, arrivalCity, selectedClass, passengerSum, classSeat, filterKey } = router.query
+    const { departureCity, arrivalCity, selectedClass, passengerSum, classSeat } = router.query
 
     const [filterParameter, setFilterParameter] = useState('Harga - Termurah')
     const [searchFlightTickets, setSearchFlightTickets] = useState([])
+
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 
     const getSearchFlightTickets = async (): Promise<void> => {
         try {
             const response = await axios.get(`${process.env.REST_API_ENDPOINT}search?departureCity=${departureCity}&arrivalCity=${arrivalCity}&classSeat=${classSeat}`, {
-                withCredentials: true
-            })
-            console.log(response.data.data)
-            setSearchFlightTickets(response.data.data.slice(0, 4))
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                console.error(error)
-            } else {
-                console.error(error)
-            }
-        }
-    }
-    const filterFlightTickets = async (): Promise<void> => {
-        try {
-            const response = await axios.get(`${process.env.REST_API_ENDPOINT}filter?sortBy=${filterKey}`, {
-                withCredentials: true
+                withCredentials: false
             })
             console.log(response.data.data)
             setSearchFlightTickets(response.data.data.slice(0, 4))
@@ -50,7 +36,6 @@ const SearchFlight = (): ReactElement => {
 
     useEffect(() => {
         getSearchFlightTickets()
-        filterFlightTickets()
     }, [])
 
     const onOptionChange = e => {
@@ -191,7 +176,13 @@ const SearchFlight = (): ReactElement => {
                 <div className='mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 justify-start gap-6'>
                     {searchFlightTickets.map((ticket: any, index) => (
                         <ul key={ticket.id} className='border'>
-                            <li className='w-40 text-center'>maskapai : {ticket.flight.airline}</li>
+                            <li className='w-40 text-center'>maskapai : {ticket.flight.airline}
+                                <Link href={`/checkout/${ticket.id}`}>
+                                    <button className='p-1 m-1 text-sm text-white bg-blue-700 rounded-lg'>
+                                        <span className='font-bold text-base text-white'>Pilih</span>
+                                    </button>
+                                </Link>
+                            </li>
                             <li className='w-40 text-center'>departure : {ticket.flight.departureCity}</li>
                             <li className='w-40 text-center'>arrival : {ticket.flight.arrivalCity}</li>
                             <li className='w-40 text-center'>seat : {ticket.classSeat}</li>
@@ -206,4 +197,4 @@ const SearchFlight = (): ReactElement => {
     )
 }
 
-export default dynamic (()=> Promise.resolve(SearchFlight), {ssr:false})
+export default dynamic(() => Promise.resolve(SearchFlight), { ssr: false })
