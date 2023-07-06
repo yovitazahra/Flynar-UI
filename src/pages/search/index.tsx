@@ -109,7 +109,7 @@ const SearchFlight = (): ReactElement => {
                                         <div>
                                             <div className='flex justify-between items-center'>
                                                 <div className='flex items-center'>
-                                                    <FontAwesomeIcon icon={faGlobe} className='text-yellow-400 mr-2' />
+                                                    <FontAwesomeIcon icon={faGlobe} className='w-4 text-yellow-400 mr-2' />
                                                     <p className='font-semibold text-sm'><span>{ticket.flight.airline} - {ticket.classSeat}</span></p>
                                                 </div>
                                             </div>
