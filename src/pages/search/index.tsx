@@ -46,7 +46,7 @@ const SearchFlight = (): ReactElement => {
     return (
         <div>
             <Header/>
-            <div className='w-full px-[15%] mt-4'>
+            <div className='w-full px-[1%] sm:px-[5%] md:px-[10%] lg:px-[15%] mt-4'>
                 <div>
                     <div className='flex justify-between gap-3 pb-[20px]'>
                         <span className='flex bg-purple-700 p-4 text-white text-base font-medium border rounded-md items-center w-4/5'>Destinasi {departureCity} {'>'} {arrivalCity}</span>
@@ -80,14 +80,14 @@ const SearchFlight = (): ReactElement => {
                             <b>Senin</b><br />02/05/2023
                         </button>
                     </div> */}
-                    <div className='w-full filter-section px-[5%]'>
+                    <div className='w-full filter-section'>
                         <div className='flex items-center justify-end pt-[20px] pb-[20px]'>
                             <div data-modal-target='defaultModal' data-modal-toggle='defaultModal' className='h-fit w-fit p-2 border-2 border-purple-700 rounded-lg text-sm'>
                                 {filterParameter}
                             </div>
                         </div>
                         <div className='w-full flex'>
-                            <div className='w-1/4 filter-box flex'>
+                            <div className='w-1/4 filter-box hidden md:flex'>
                                 <div className='h-fit w-full shadow-lg p-5 rounded-lg' id='accordionPanelsStayOpenExample'>
                                     <p className='font-bold mb-4'>Filter</p>
                                     <div className='flex items-center justify-between'>
@@ -99,9 +99,9 @@ const SearchFlight = (): ReactElement => {
                                     </div>
                                 </div>
                             </div>
-                            <div className='ml-4 w-3/4'>
+                            <div className='ml-4 w-full md:w-3/4'>
                                 <div className='w-fit px-2 py-1 mb-2 cursor-pointer flex items-center border-2 border-slate-500 rounded-full' onClick={toggleFlightDetails}>
-                                    <p>see details ticket</p>
+                                    <p>see all details ticket</p>
                                     <FontAwesomeIcon icon={faChevronDown} className='w-3 h-3 ml-2 text-gray-500' />
                                 </div>
                                 {searchFlightTickets.map((ticket: any, index) => (
