@@ -15,6 +15,7 @@ const SearchFlight = (): ReactElement => {
   const { departureCity, arrivalCity, total, departureDate, arrivalDate, classSeat, isRoundTrip } = router.query
 
   const [filterParameter, setFilterParameter] = useState('Harga - Termurah')
+  const [filteredData, setFilteredData] = useState([]);
   const [searchFlightTickets, setSearchFlightTickets] = useState([])
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
