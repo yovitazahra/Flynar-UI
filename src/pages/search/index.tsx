@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHeart, faDollarSign, faArrowLeft, faArrowUp, faArrowDown, faCube, faCubes, faChevronRight, faChevronDown, faGlobe, faClock } from '@fortawesome/free-solid-svg-icons'
-import Image from 'next/image'
 import Header from '../../components/Header'
 import axios from 'axios'
 import { useRouter } from 'next/router'
@@ -13,21 +12,19 @@ import router from 'router'
 
 const SearchFlight = (): ReactElement => {
   const router = useRouter()
-  const { departureCity, arrivalCity, selectedClass, passengerSum, classSeat } = router.query
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const { departureCity, arrivalCity, total, departureDate, arrivalDate, classSeat, isRoundTrip } = router.query
 
   const [filterParameter, setFilterParameter] = useState('Harga - Termurah')
-  const [filteredData, setFilteredData] = useState([]);
+  const [filteredData, setFilteredData] = useState([])
   const [searchFlightTickets, setSearchFlightTickets] = useState([])
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 
   const getSearchFlightTickets = async (): Promise<void> => {
     try {
-      const response = await axios.get(`${process.env.REST_API_ENDPOINT}search?departureCity=${departureCity}&arrivalCity=${arrivalCity}&classSeat=${classSeat}`, {
-        withCredentials: false
-      })
-      console.log(response.data.data)
-      setSearchFlightTickets(response.data.data.slice(0, 4))
+      const response = await axios.get(`${process.env.REST_API_ENDPOINT}search?departureCity=${departureCity}&arrivalCity=${arrivalCity}&classSeat=${classSeat}&departureDate=${departureDate}&total=${total}`)
+      setSearchFlightTickets(response.data.data)
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error(error)
@@ -50,7 +47,7 @@ const SearchFlight = (): ReactElement => {
   }
 
   useEffect(() => {
-    getSearchFlightTickets()
+    void getSearchFlightTickets()
   }, [])
 
   const [showFlightDetails, setShowFlightDetails] = useState(false)
@@ -63,7 +60,7 @@ const SearchFlight = (): ReactElement => {
   }
   return (
     <div>
-      <Header />
+      <Header isLoggedIn={isLoggedIn} login={login}/>
       <div className='w-full px-[1%] sm:px-[5%] md:px-[10%] lg:px-[15%] mt-4'>
         <div>
         <div className='flex gap-3 pb-[20px]'>
