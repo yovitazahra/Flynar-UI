@@ -289,7 +289,7 @@ const Home = (): ReactElement => {
                     </div>
                   </div>
                   <div>
-                    <button type='submit' className='w-full px-4 py-2 text-white font-bold text-base leading-6 bg-purple-700 rounded-b-lg'>
+                    <button type='submit' className='w-full px-4 py-2 text-white font-bold text-base leading-6 bg-blue-700 rounded-b-lg'>
                       Cari Penerbangan
                     </button>
                   </div>
