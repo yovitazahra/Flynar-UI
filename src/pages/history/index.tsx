@@ -9,7 +9,7 @@ import { useRouter } from 'next/router'
 import checkLoggedIn from '@/utils/checkLoggedIn'
 import Link from 'next/link'
 
-const Account = (): ReactElement => {
+const History = (): ReactElement => {
   useEffect(() => {
     void fetchCheckouts()
     const status = checkLoggedIn()
@@ -33,6 +33,7 @@ const Account = (): ReactElement => {
           Authorization: `Bearer ${accessToken}`
         }
       })
+      console.log(response)
       setCheckouts(response.data.data)
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -58,12 +59,12 @@ const Account = (): ReactElement => {
   return (
     <>
       <Head>
-        <title>Account</title>
+        <title>History</title>
       </Head>
-      <div id='account-page' className=''>
+      <div id='history-page' className=''>
         <Header isLoggedIn={isLoggedIn} login={async () => {}}/>
         <main className='mx-auto'>
-          <MenuHeader pageTitle={'Akun'} />
+          <MenuHeader pageTitle={'Riwayat'} />
           <div className='container mx-auto '>
             <div className='flex flex-col gap-y-8'>
               {
@@ -102,6 +103,9 @@ const Account = (): ReactElement => {
                   </div>
                 )
               }
+              {
+                checkouts.length === 0 && <h2 className='text-center'>Belum Ada Aktivitas</h2>
+              }
               <div className='flex mt-6 mb-2'>
                 <span className={`${errorMessage === '' && successMessage === '' ? 'h-0 w-0 opacity-0' : 'h-fit w-fit opacity-100 px-6 py-2'} duration-300 text-sm mx-auto text-white rounded-2xl text-center ${errorMessage !== '' && 'bg-red-600'} ${successMessage !== '' && 'bg-green-400'}`}>
                   {
@@ -121,7 +125,7 @@ const Account = (): ReactElement => {
   )
 }
 
-Account.getLayout = function getLayout (page: ReactElement) {
+History.getLayout = function getLayout (page: ReactElement) {
   return (
     <DefaultLayout>
       {page}
@@ -129,4 +133,4 @@ Account.getLayout = function getLayout (page: ReactElement) {
   )
 }
 
-export default Account
+export default History
