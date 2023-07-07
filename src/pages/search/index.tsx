@@ -3,31 +3,27 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHeart, faDollarSign, faArrowLeft, faArrowUp, faArrowDown, faCube, faCubes, faChevronRight, faChevronDown, faGlobe, faClock } from '@fortawesome/free-solid-svg-icons'
-import Image from 'next/image'
 import Header from '../../components/Header'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
-import DefaultLayout from '@/layouts/default'
 import checkLoggedIn from '@/utils/checkLoggedIn'
 
 const SearchFlight = (): ReactElement => {
   const router = useRouter()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const { departureCity, arrivalCity, selectedClass, passengerSum, classSeat } = router.query
+  const { departureCity, arrivalCity, total, departureDate, arrivalDate, classSeat, isRoundTrip } = router.query
 
   const [filterParameter, setFilterParameter] = useState('Harga - Termurah')
+  const [filteredData, setFilteredData] = useState([])
   const [searchFlightTickets, setSearchFlightTickets] = useState([])
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 
   const getSearchFlightTickets = async (): Promise<void> => {
     try {
-      const response = await axios.get(`${process.env.REST_API_ENDPOINT}search?departureCity=${departureCity}&arrivalCity=${arrivalCity}&classSeat=${classSeat}`, {
-        withCredentials: false
-      })
-      console.log(response.data.data)
-      setSearchFlightTickets(response.data.data.slice(0, 4))
+      const response = await axios.get(`${process.env.REST_API_ENDPOINT}search?departureCity=${departureCity}&arrivalCity=${arrivalCity}&classSeat=${classSeat}&departureDate=${departureDate}&total=${total}`)
+      setSearchFlightTickets(response.data.data)
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error(error)
@@ -38,12 +34,12 @@ const SearchFlight = (): ReactElement => {
   }
 
   useEffect(() => {
-    void getSearchFlightTickets()
+    const status = checkLoggedIn()
+    setIsLoggedIn(status)
   }, [])
 
   useEffect(() => {
-    const status = checkLoggedIn()
-    setIsLoggedIn(status)
+    void getSearchFlightTickets()
   }, [])
 
   const login = async (): Promise<void> => {
@@ -79,32 +75,6 @@ const SearchFlight = (): ReactElement => {
               <Link href={'/'}><span className='font-bold text-base text-white'>Ubah Pencarian</span></Link>
             </div>
           </div>
-          {/* <div className='flight-option flex p-[15px] border-b-2 border-gray-300 gap-[5px]'>
-                        <button type='button' className='px-5 py-2.5 text-sm font-medium text-center text-black rounded-lg focus:ring-4 focus:outline-none border-2 border-grey'>
-                            <b>Senin</b><br />02/05/2023
-                        </button>
-                        <button type='button' className='px-5 py-2.5 text-sm font-medium text-center text-black rounded-lg focus:ring-4 focus:outline-none border-2 border-grey'>
-                            <b>Senin</b><br />02/05/2023
-                        </button>
-                        <button type='button' className='px-5 py-2.5 text-sm font-medium text-center text-black rounded-lg focus:ring-4 focus:outline-none border-2 border-grey'>
-                            <b>Senin</b><br />02/05/2023
-                        </button>
-                        <button type='button' className='px-5 py-2.5 text-sm font-medium text-center text-black rounded-lg focus:ring-4 focus:outline-none border-2 border-grey'>
-                            <b>Senin</b><br />02/05/2023
-                        </button>
-                        <button type='button' className='px-5 py-2.5 text-sm font-medium text-center text-black rounded-lg focus:ring-4 focus:outline-none border-2 border-grey'>
-                            <b>Senin</b><br />02/05/2023
-                        </button>
-                        <button type='button' className='px-5 py-2.5 text-sm font-medium text-center text-black rounded-lg focus:ring-4 focus:outline-none border-2 border-grey'>
-                            <b>Senin</b><br />02/05/2023
-                        </button>
-                        <button type='button' className='px-5 py-2.5 text-sm font-medium text-center text-black rounded-lg focus:ring-4 focus:outline-none border-2 border-grey'>
-                            <b>Senin</b><br />02/05/2023
-                        </button>
-                        <button type='button' className='px-5 py-2.5 text-sm font-medium text-center text-black rounded-lg focus:ring-4 focus:outline-none border-2 border-grey'>
-                            <b>Senin</b><br />02/05/2023
-                        </button>
-                    </div> */}
           <div className='w-full filter-section'>
             <div className='flex items-center justify-end pt-[20px] pb-[20px]'>
               <div data-modal-target='defaultModal' data-modal-toggle='defaultModal' className='h-fit w-fit p-2 border-2 border-purple-700 rounded-lg text-sm'>
@@ -134,7 +104,7 @@ const SearchFlight = (): ReactElement => {
                     <div>
                       <div className='flex justify-between items-center'>
                         <div className='flex items-center'>
-                          <FontAwesomeIcon icon={faGlobe} className='w-4 text-yellow-400 mr-2' />
+                          <FontAwesomeIcon icon={faGlobe} className='text-yellow-400 mr-2' />
                           <p className='font-semibold text-sm'><span>{ticket.flight.airline} - {ticket.classSeat}</span></p>
                         </div>
                       </div>
@@ -196,19 +166,6 @@ const SearchFlight = (): ReactElement => {
                     )}
 
                   </div>
-                  // <u key={ticket.id} className='border'>
-                  //     <li className='text-center'>maskapai : {ticket.flight.airline}
-                  //         <Link href={`/checkout/${ticket.id}`}>
-                  //             <button className='p-1 m-1 text-sm text-white bg-blue-700 rounded-lg'>
-                  //                 <span className='font-bold text-base text-white'>Pilih</span>
-                  //             </button>
-                  //         </Link>
-                  //     </li>
-                  //     <li className='w-40 text-center'>departure : {ticket.flight.departureCity}</li>
-                  //     <li className='w-40 text-center'>arrival : {ticket.flight.arrivalCity}</li>
-                  //     <li className='w-40 text-center'>seat : {ticket.classSeat}</li>
-                  //     <li className='w-40 text-center'>harga : {ticket.price}</li>
-                  // </u>
                 ))}
               </div>
             </div>

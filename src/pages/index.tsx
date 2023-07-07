@@ -89,7 +89,7 @@ const Home = (): ReactElement => {
   const fetchTickets = async (): Promise<void> => {
     try {
       const response = await axios.get(`${process.env.REST_API_ENDPOINT}search?arrivalCity=${favoriteDestination}`)
-      setTickets(response.data.data.slice(0, 4))
+      setTickets(response.data.data.slice(0, 6))
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error(error)
@@ -107,7 +107,8 @@ const Home = (): ReactElement => {
     if (date === '') {
       return ''
     }
-    return `${date.getFullYear()}-${date.getMonth() < 10 ? `0${date.getMonth()}` : date.getMonth()}-${date.getDate() < 10 ? `0${date.getDate()}` : date.getDate()}`
+    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+    return `${date.getFullYear()}-${date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1}-${date.getDate() < 10 ? `0${date.getDate()}` : date.getDate()}`
   }
 
   const searchFlight = (e: React.FormEvent<HTMLFormElement>): void => {

@@ -7,9 +7,9 @@ import axios from 'axios'
 import AuthPageLayout from '@/layouts/auth'
 import { useRouter } from 'next/router'
 import { deleteCookie, setCookie } from 'cookies-next'
+import checkLoggedIn from '@/utils/checkLoggedIn'
 
 const Login = (): ReactElement => {
-  const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const togglePasswordVisibility = (): void => {
     setShowPassword(!showPassword)
@@ -19,6 +19,17 @@ const Login = (): ReactElement => {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+
+  const router = useRouter()
+  useEffect(() => {
+    const status = checkLoggedIn()
+    if (status) {
+      setErrorMessage('Anda Sudah Login')
+      setTimeout(() => {
+        void router.push('/')
+      }, 2000)
+    }
+  }, [])
 
   useEffect(() => {
     if (errorMessage !== '') {
