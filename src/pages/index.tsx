@@ -9,6 +9,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import Image from 'next/image'
 import { faCalendarDays, faCouch, faPlaneDeparture, faRetweet, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import checkLoggedIn from '@/utils/checkLoggedIn'
 
 const Home = (): ReactElement => {
   const router = useRouter()
@@ -29,8 +30,12 @@ const Home = (): ReactElement => {
   const [favoriteDestination, setFavoriteDestination] = useState('')
 
   useEffect(() => {
-    void checkLoggedIn()
     void fetchTickets()
+  }, [])
+
+  useEffect(() => {
+    const status = checkLoggedIn()
+    setIsLoggedIn(status)
   }, [])
 
   useEffect(() => {
@@ -59,23 +64,9 @@ const Home = (): ReactElement => {
     }
   }, [isRoundTrip])
 
-  const checkLoggedIn = async (): Promise<void> => {
-    try {
-      const response = await axios.get(`${process.env.REST_API_ENDPOINT}token`, {
-        withCredentials: true
-      })
-      sessionStorage.setItem('accessToken', response.data.accessToken)
-      setIsLoggedIn(true)
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
   const login = async (): Promise<void> => {
     try {
-      const response = await axios.post(`${process.env.REST_API_ENDPOINT}login`, { identifier: '', password: '' }, {
-        withCredentials: true
-      })
+      const response = await axios.post(`${process.env.REST_API_ENDPOINT}login`, { identifier: '', password: '' })
       sessionStorage.setItem('accessToken', response.data.accessToken)
       setIsLoggedIn(true)
     } catch (error) {
@@ -97,9 +88,7 @@ const Home = (): ReactElement => {
 
   const fetchTickets = async (): Promise<void> => {
     try {
-      const response = await axios.get(`${process.env.REST_API_ENDPOINT}search?arrivalCity=${favoriteDestination}`, {
-        withCredentials: false
-      })
+      const response = await axios.get(`${process.env.REST_API_ENDPOINT}search?arrivalCity=${favoriteDestination}`)
       setTickets(response.data.data.slice(0, 6))
     } catch (error) {
       if (axios.isAxiosError(error)) {
