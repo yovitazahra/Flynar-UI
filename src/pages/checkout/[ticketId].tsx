@@ -38,7 +38,6 @@ const Checkout = (): ReactElement => {
     }
   }
 
-  // code gilang
   const id = router.query.ticketId
   const [data, setData] = useState<any>([])
 

@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { RE_DIGIT } from '../constants/index'
+import type { ReactElement } from 'react'
 
 export interface Props {
   value: string
@@ -7,8 +8,7 @@ export interface Props {
   onChange: (value: string) => void
 };
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-const OtpInput = ({ value, valueLength, onChange }: Props) => {
+const OtpInput = ({ value, valueLength, onChange }: Props): ReactElement => {
   const valueItems = useMemo(() => {
     const valueArray = value.split('')
     const items: string[] = []

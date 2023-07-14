@@ -1,4 +1,4 @@
-import { useState, useEffect, type ReactElement, type SetStateAction, FormEventHandler } from 'react'
+import { useState, useEffect, type ReactElement, type SetStateAction } from 'react'
 import DefaultLayout from '@/layouts/default'
 import Head from 'next/head'
 import Header from '@/components/Header'
@@ -103,12 +103,12 @@ const Home = (): ReactElement => {
     setFavoriteDestination(value)
   }
 
-  const formatDate = (date: any = ''): string => {
-    if (date === '') {
+  const formatDate = (date: Date | null = null): string => {
+    if (date === null) {
       return ''
+    } else {
+      return `${date.getFullYear()}-${date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1}-${date.getDate() < 10 ? `0${date.getDate()}` : date.getDate()}`
     }
-    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-    return `${date.getFullYear()}-${date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1}-${date.getDate() < 10 ? `0${date.getDate()}` : date.getDate()}`
   }
 
   const searchFlight = (e: React.FormEvent<HTMLFormElement>): void => {

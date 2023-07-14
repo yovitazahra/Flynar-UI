@@ -22,7 +22,6 @@ const Login = (): ReactElement => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isLoading, setIsLoading] = useState(false)
 
   const togglePasswordVisibility = (): void => {
@@ -46,6 +45,7 @@ const Login = (): ReactElement => {
   }, [email, password])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+    setIsLoading(true)
     e.preventDefault()
 
     if (email === '' || password === '') {
@@ -79,6 +79,7 @@ const Login = (): ReactElement => {
     } else {
       dispatch(setMessageActionCreator({ error: false, text: 'Selamat Datang' }))
     }
+    setIsLoading(true)
   }
 
   return (
