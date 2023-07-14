@@ -1,30 +1,38 @@
 import { useState, useEffect, type ReactElement } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import Link from 'next/link'
 import Head from 'next/head'
 import Image from 'next/image'
-import { FiEye, FiEyeOff } from 'react-icons/fi'
-import axios from 'axios'
-import AuthPageLayout from '@/layouts/auth'
 import { useRouter } from 'next/router'
-import { deleteCookie, setCookie } from 'cookies-next'
+import axios from 'axios'
+import { FiEye, FiEyeOff } from 'react-icons/fi'
+import AuthPageLayout from '@/layouts/auth'
 import checkLoggedIn from '@/utils/checkLoggedIn'
+import { asyncSetAuthUser } from '@/store/authUser/action'
+import { setMessageActionCreator, unsetMessageActionCreator } from '@/store/message/action'
+
+interface ILoginState {
+  message: Record<string, any> | null
+}
 
 const Login = (): ReactElement => {
+  const dispatch = useDispatch()
+  const router = useRouter()
+  const message = useSelector((state: ILoginState) => state.message)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [isLoading, setIsLoading] = useState(false)
+
   const togglePasswordVisibility = (): void => {
     setShowPassword(!showPassword)
   }
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
-
-  const router = useRouter()
   useEffect(() => {
     const status = checkLoggedIn()
     if (status) {
-      setErrorMessage('Anda Sudah Login')
+      dispatch(setMessageActionCreator({ error: true, text: 'Anda Sudah Login' }))
       setTimeout(() => {
         void router.push('/')
       }, 2000)
@@ -32,8 +40,8 @@ const Login = (): ReactElement => {
   }, [])
 
   useEffect(() => {
-    if (errorMessage !== '') {
-      setErrorMessage('')
+    if (message !== null) {
+      dispatch(unsetMessageActionCreator())
     }
   }, [email, password])
 
@@ -41,45 +49,35 @@ const Login = (): ReactElement => {
     e.preventDefault()
 
     if (email === '' || password === '') {
-      setErrorMessage('Mohon Lengkapi Data')
+      dispatch(setMessageActionCreator({ error: true, text: 'Mohon Lengkapi Data' }))
       return
     }
 
     if (password.length < 8) {
-      setErrorMessage('Password Minimal 8 Karakter')
+      dispatch(setMessageActionCreator({ error: true, text: 'Password Minimal 8 Karakter' }))
       return
     }
 
-    try {
-      setIsLoading(true)
-      setErrorMessage('')
-      const response = await axios.post(`${process.env.REST_API_ENDPOINT}login`, { identifier: email, password })
-      deleteCookie('loggedEmail')
-      sessionStorage.setItem('accessToken', response.data.accessToken)
-      if (response.status === 200) {
-        await router.push('/')
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
-          if (error.response.data.message === 'Silahkan Verifikasi Akun Ini') {
-            setCookie('loggedEmail', email)
-            setErrorMessage(error.response.data.message)
+    const response = await dispatch(asyncSetAuthUser({ identifier: email, password }))
+    if (response instanceof Error) {
+      if (axios.isAxiosError(response)) {
+        if (response.response?.data?.message !== undefined && response.response?.data?.message !== null) {
+          if (response.response.data.message === 'Silahkan Verifikasi Akun Ini') {
+            dispatch(setMessageActionCreator({ error: true, text: response.response.data.message }))
             setTimeout(() => {
               void router.push('/verify-otp')
             }, 2000)
           } else {
-            setErrorMessage(error.response.data.message)
+            dispatch(setMessageActionCreator({ error: true, text: response.response.data.message }))
           }
         } else {
-          setErrorMessage('Terjadi Kesalahan, Coba Lagi')
-          console.error(error)
+          dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Proses Transaksi, Coba Lagi' }))
         }
       } else {
-        console.error(error)
+        dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Pada Server, Coba Lagi' }))
       }
-    } finally {
-      setIsLoading(false)
+    } else {
+      dispatch(setMessageActionCreator({ error: false, text: 'Selamat Datang' }))
     }
   }
 
@@ -130,8 +128,8 @@ const Login = (): ReactElement => {
                 <Link href='/register' className='font-bold text-purple-700'>Daftar di sini</Link>
               </p>
               <div className='flex mt-6'>
-                <span className={`${errorMessage === '' ? 'h-0 w-0 opacity-0' : 'h-fit w-fit opacity-100 px-6 py-2 bg-red-600'} duration-300 text-sm mx-auto text-white rounded-2xl text-center`}>
-                  {errorMessage}
+                <span className={`${message === null ? 'h-0 w-0 opacity-0' : 'h-fit w-fit opacity-100 px-6 py-2 bg-red-600'} duration-300 text-sm mx-auto text-white rounded-2xl text-center`}>
+                  {message?.text}
                 </span>
               </div>
             </form>
