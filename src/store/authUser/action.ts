@@ -33,7 +33,6 @@ const asyncSetAuthUser = ({ identifier = '', password = '' }): any => {
       } else {
         api.putAccessToken(response.accessToken)
         const { data } = await api.getProfile()
-        console.log(data)
         dispatch(setAuthUserActionCreator(data))
       }
     } catch (error: any) {

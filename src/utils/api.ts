@@ -1,8 +1,6 @@
 import axios from 'axios'
 
 const api = (() => {
-  // const dispatch = useDispatch()
-  // const router = useRouter()
   const BASE_URL = process.env.ENVIRONMENT === 'production' ? 'https://flynar-rest-api-production.up.railway.app/api/v1/' : 'http://localhost:8000/api/v1/'
 
   const putAccessToken = (token: string): void => {

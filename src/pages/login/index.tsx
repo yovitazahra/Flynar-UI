@@ -7,30 +7,31 @@ import { useRouter } from 'next/router'
 import axios from 'axios'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import AuthPageLayout from '@/layouts/auth'
-import checkLoggedIn from '@/utils/checkLoggedIn'
 import { asyncSetAuthUser } from '@/store/authUser/action'
 import { setMessageActionCreator, unsetMessageActionCreator } from '@/store/message/action'
+import { setLoadingTrueActionCreator, setLoadingFalseActionCreator } from '@/store/isLoading/action'
 
 interface ILoginState {
   message: Record<string, any> | null
+  isLoading: boolean
+  authUser: Record<string, any> | null
 }
 
 const Login = (): ReactElement => {
   const dispatch = useDispatch()
   const router = useRouter()
-  const message = useSelector((state: ILoginState) => state.message)
+
+  const { message, isLoading, authUser } = useSelector((states: ILoginState) => states)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
 
   const togglePasswordVisibility = (): void => {
     setShowPassword(!showPassword)
   }
 
   useEffect(() => {
-    const status = checkLoggedIn()
-    if (status) {
+    if (authUser !== null) {
       dispatch(setMessageActionCreator({ error: true, text: 'Anda Sudah Login' }))
       setTimeout(() => {
         void router.push('/')
@@ -45,8 +46,8 @@ const Login = (): ReactElement => {
   }, [email, password])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
-    setIsLoading(true)
     e.preventDefault()
+    dispatch(unsetMessageActionCreator())
 
     if (email === '' || password === '') {
       dispatch(setMessageActionCreator({ error: true, text: 'Mohon Lengkapi Data' }))
@@ -58,6 +59,7 @@ const Login = (): ReactElement => {
       return
     }
 
+    dispatch(setLoadingTrueActionCreator())
     const response = await dispatch(asyncSetAuthUser({ identifier: email, password }))
     if (response instanceof Error) {
       if (axios.isAxiosError(response)) {
@@ -78,8 +80,11 @@ const Login = (): ReactElement => {
       }
     } else {
       dispatch(setMessageActionCreator({ error: false, text: 'Selamat Datang' }))
+      setTimeout(() => {
+        void router.push('/')
+      }, 2000)
     }
-    setIsLoading(true)
+    dispatch(setLoadingFalseActionCreator())
   }
 
   return (
@@ -129,7 +134,7 @@ const Login = (): ReactElement => {
                 <Link href='/register' className='font-bold text-purple-700'>Daftar di sini</Link>
               </p>
               <div className='flex mt-6'>
-                <span className={`${message === null ? 'h-0 w-0 opacity-0' : 'h-fit w-fit opacity-100 px-6 py-2 bg-red-600'} duration-300 text-sm mx-auto text-white rounded-2xl text-center`}>
+                <span className={`${message === null ? 'h-0 w-0 opacity-0' : 'h-fit w-fit opacity-100 px-6 py-2'} ${message?.error === true ? 'bg-red-600' : 'bg-green-400'} duration-300 text-sm mx-auto text-white rounded-2xl text-center`}>
                   {message?.text}
                 </span>
               </div>
