@@ -1,84 +1,84 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import type { ReactElement, FormEvent } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import Head from 'next/head'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
+import { setCookie } from 'cookies-next'
 import axios from 'axios'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import AuthPageLayout from '@/layouts/auth'
 import isEmailValid from '@/utils/isEmailValid'
-import { setCookie } from 'cookies-next'
+import { setMessageActionCreator, unsetMessageActionCreator } from '@/store/message/action'
+import { setLoadingTrueActionCreator, setLoadingFalseActionCreator } from '@/store/isLoading/action'
+import api from '@/utils/api'
+
+interface IRegisterState {
+  message: Record<string, any> | null
+  isLoading: boolean
+}
 
 const Register = (): ReactElement => {
+  const dispatch = useDispatch()
+  const router = useRouter()
+
+  const { message, isLoading } = useSelector((states: IRegisterState) => states)
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
   const togglePasswordVisibility = (): void => {
     setShowPassword(!showPassword)
   }
 
-  const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
-  const [successMessage, setSuccessMessage] = useState('')
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [phoneNumber, setPhoneNumber] = useState('')
-  const router = useRouter()
-
   useEffect(() => {
-    if (errorMessage !== '') {
-      setErrorMessage('')
+    if (message !== null) {
+      dispatch(unsetMessageActionCreator())
     }
   }, [name, email, password, phoneNumber])
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
+    dispatch(unsetMessageActionCreator())
 
     if (name === '' || email === '' || password === '' || phoneNumber === '') {
-      setErrorMessage('Mohon Lengkapi Data')
+      dispatch(setMessageActionCreator({ error: true, text: 'Mohon Lengkapi Data' }))
       return
     }
 
     if (isNaN(parseInt(phoneNumber))) {
-      setErrorMessage('Nomor Telepon Wajib Angka')
+      dispatch(setMessageActionCreator({ error: true, text: 'Nomor Telepon Wajib Angka' }))
       return
     }
 
     if (password.length < 8) {
-      setErrorMessage('Password Minimal 8 Karakter')
+      dispatch(setMessageActionCreator({ error: true, text: 'Password Minimal 8 Karakter' }))
       return
     }
 
-    try {
-      setIsLoading(true)
-      setErrorMessage('')
-      setSuccessMessage('')
-      const response = await axios.post(`${process.env.REST_API_ENDPOINT}register`, {
-        name,
-        email,
-        password,
-        phoneNumber
-      })
+    dispatch(setLoadingTrueActionCreator())
+    const response = await api.register(name, email, password, phoneNumber)
+    if (response instanceof Error) {
+      if (axios.isAxiosError(response)) {
+        if (response.response?.data?.message !== undefined && response.response?.data?.message !== null) {
+          dispatch(setMessageActionCreator({ error: true, text: response.response.data.message }))
+        } else {
+          dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Pada Server, Coba Lagi' }))
+        }
+      } else {
+        dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Pada Server, Coba Lagi' }))
+      }
+    } else {
       setCookie('loggedEmail', email)
-      setSuccessMessage('Registrasi Berhasil')
+      dispatch(setMessageActionCreator({ error: false, text: 'Silahkan Lanjut Verifikasi' }))
       setTimeout(() => {
         void router.push('/verify-otp')
       }, 2000)
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
-          setErrorMessage(error.response.data.message)
-        } else {
-          setErrorMessage('Terjadi Kesalahan, Coba Lagi')
-          console.error(error)
-        }
-      } else {
-        console.error(error)
-      }
-    } finally {
-      setIsLoading(false)
     }
+    dispatch(setLoadingFalseActionCreator())
   }
 
   return (
@@ -134,14 +134,8 @@ const Register = (): ReactElement => {
                   <Link href='/login' className='text-purple-700 font-bold'>Masuk di sini</Link>
                 </p>
                 <div className='flex mt-6'>
-                  <span className={`${errorMessage === '' && successMessage === '' ? 'h-0 w-0 opacity-0' : 'h-fit w-fit opacity-100 px-6 py-2'} duration-300 text-sm mx-auto text-white rounded-2xl text-center ${errorMessage !== '' && 'bg-red-600'} ${successMessage !== '' && 'bg-green-400'}`}>
-                    {
-                      errorMessage === '' && successMessage === ''
-                        ? ''
-                        : errorMessage !== ''
-                          ? errorMessage
-                          : successMessage
-                    }
+                  <span className={`${message === null ? 'h-0 w-0 opacity-0' : 'h-fit w-fit opacity-100 px-6 py-2'} ${message?.error === true ? 'bg-red-600' : 'bg-green-400'} duration-300 text-sm mx-auto text-white rounded-2xl text-center`}>
+                    {message?.text}
                   </span>
                 </div>
               </form>

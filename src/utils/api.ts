@@ -34,11 +34,26 @@ const api = (() => {
     }
   }
 
+  const register = async (name: string, email: string, password: string, phoneNumber: string): Promise<any> => {
+    try {
+      const response = await axios.post(`${BASE_URL}register`, {
+        name,
+        email,
+        password,
+        phoneNumber
+      })
+      return response.data
+    } catch (error) {
+      return error
+    }
+  }
+
   return {
     putAccessToken,
     getAccessToken,
     login,
-    getProfile
+    getProfile,
+    register
   }
 })()
 

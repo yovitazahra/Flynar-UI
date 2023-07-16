@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Head from 'next/head'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
+import { deleteCookie, setCookie } from 'cookies-next'
 import axios from 'axios'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import AuthPageLayout from '@/layouts/auth'
@@ -65,6 +66,7 @@ const Login = (): ReactElement => {
       if (axios.isAxiosError(response)) {
         if (response.response?.data?.message !== undefined && response.response?.data?.message !== null) {
           if (response.response.data.message === 'Silahkan Verifikasi Akun Ini') {
+            setCookie('loggedEmail', email)
             dispatch(setMessageActionCreator({ error: true, text: response.response.data.message }))
             setTimeout(() => {
               void router.push('/verify-otp')
@@ -73,12 +75,13 @@ const Login = (): ReactElement => {
             dispatch(setMessageActionCreator({ error: true, text: response.response.data.message }))
           }
         } else {
-          dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Proses Transaksi, Coba Lagi' }))
+          dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Pada Server, Coba Lagi' }))
         }
       } else {
         dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Pada Server, Coba Lagi' }))
       }
     } else {
+      deleteCookie('loggedEmail')
       dispatch(setMessageActionCreator({ error: false, text: 'Selamat Datang' }))
       setTimeout(() => {
         void router.push('/')

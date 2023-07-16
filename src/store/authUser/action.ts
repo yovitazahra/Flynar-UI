@@ -36,7 +36,7 @@ const asyncSetAuthUser = ({ identifier = '', password = '' }): any => {
         dispatch(setAuthUserActionCreator(data))
       }
     } catch (error: any) {
-      alert(error.message)
+      console.log(error.message)
     }
   }
 }
