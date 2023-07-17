@@ -8,21 +8,18 @@ import { deleteCookie, setCookie } from 'cookies-next'
 import axios from 'axios'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import AuthPageLayout from '@/layouts/auth'
+import type { RootState } from '@/store/index'
 import { asyncSetAuthUser } from '@/store/authUser/action'
 import { setMessageActionCreator, unsetMessageActionCreator } from '@/store/message/action'
 import { setLoadingTrueActionCreator, setLoadingFalseActionCreator } from '@/store/isLoading/action'
-
-interface ILoginState {
-  message: Record<string, any> | null
-  isLoading: boolean
-  authUser: Record<string, any> | null
-}
 
 const Login = (): ReactElement => {
   const dispatch = useDispatch()
   const router = useRouter()
 
-  const { message, isLoading, authUser } = useSelector((states: ILoginState) => states)
+  const message: Record<string, any> | null = useSelector((state: RootState) => state.message)
+  const authUser: Record<string, any> | null = useSelector((state: RootState) => state.authUser)
+  const isLoading: boolean = useSelector((state: RootState) => state.isLoading)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)

@@ -7,20 +7,17 @@ import { useRouter } from 'next/router'
 import { getCookie } from 'cookies-next'
 import AuthPageLayout from '@/layouts/auth'
 import OtpInput from '@/components/OtpInput'
+import type { RootState } from '@/store/index'
 import { setMessageActionCreator, unsetMessageActionCreator } from '@/store/message/action'
 import { setLoadingTrueActionCreator, setLoadingFalseActionCreator } from '@/store/isLoading/action'
 import api from '@/utils/api'
-
-interface IVerifyOtpPage {
-  message: Record<string, any> | null
-  isLoading: boolean
-}
 
 const VerifyOtp = (): ReactElement => {
   const dispatch = useDispatch()
   const router = useRouter()
 
-  const { message, isLoading } = useSelector((states: IVerifyOtpPage) => states)
+  const message: Record<string, any> | null = useSelector((state: RootState) => state.message)
+  const isLoading: boolean = useSelector((state: RootState) => state.isLoading)
   const [loggedEmail, setLoggedEmail] = useState('')
   const [otp, setOtp] = useState('')
   const [startCountdown, setStartCountdown] = useState<SetStateAction<any>>(null)

@@ -10,20 +10,17 @@ import axios from 'axios'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import AuthPageLayout from '@/layouts/auth'
 import isEmailValid from '@/utils/isEmailValid'
+import type { RootState } from '@/store/index'
 import { setMessageActionCreator, unsetMessageActionCreator } from '@/store/message/action'
 import { setLoadingTrueActionCreator, setLoadingFalseActionCreator } from '@/store/isLoading/action'
 import api from '@/utils/api'
-
-interface IRegisterState {
-  message: Record<string, any> | null
-  isLoading: boolean
-}
 
 const Register = (): ReactElement => {
   const dispatch = useDispatch()
   const router = useRouter()
 
-  const { message, isLoading } = useSelector((states: IRegisterState) => states)
+  const message: Record<string, any> | null = useSelector((state: RootState) => state.message)
+  const isLoading: boolean = useSelector((state: RootState) => state.isLoading)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
