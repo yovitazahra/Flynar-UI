@@ -1,19 +1,28 @@
 import { type ReactElement, useState, useEffect, type SetStateAction } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import Head from 'next/head'
 import Image from 'next/image'
 import axios from 'axios'
-import AuthPageLayout from '@/layouts/auth'
 import { useRouter } from 'next/router'
 import { getCookie } from 'cookies-next'
+import AuthPageLayout from '@/layouts/auth'
 import OtpInput from '@/components/OtpInput'
+import { setMessageActionCreator, unsetMessageActionCreator } from '@/store/message/action'
+import { setLoadingTrueActionCreator, setLoadingFalseActionCreator } from '@/store/isLoading/action'
+import api from '@/utils/api'
+
+interface IVerifyOtpPage {
+  message: Record<string, any> | null
+  isLoading: boolean
+}
 
 const VerifyOtp = (): ReactElement => {
+  const dispatch = useDispatch()
   const router = useRouter()
+
+  const { message, isLoading } = useSelector((states: IVerifyOtpPage) => states)
   const [loggedEmail, setLoggedEmail] = useState('')
   const [otp, setOtp] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
-  const [successMessage, setSuccessMessage] = useState('')
   const [startCountdown, setStartCountdown] = useState<SetStateAction<any>>(null)
 
   let secondTimer: any
@@ -22,11 +31,8 @@ const VerifyOtp = (): ReactElement => {
   const onChangeOtp = (value: string): void => { setOtp(value) }
 
   useEffect(() => {
-    if (errorMessage !== '') {
-      setErrorMessage('')
-    }
-    if (successMessage !== '') {
-      setSuccessMessage('')
+    if (message !== null) {
+      dispatch(unsetMessageActionCreator())
     }
   }, [otp])
 
@@ -43,22 +49,37 @@ const VerifyOtp = (): ReactElement => {
     if (email !== undefined && email !== null && email !== '') {
       setLoggedEmail(email)
     } else {
-      setErrorMessage('Silahkan Login')
+      dispatch(setMessageActionCreator({ error: true, text: 'Silahkan Login' }))
       setTimeout(() => {
-        void router.push('/')
+        void router.push('/login')
       }, 2500)
     }
   }
 
   const resendOtp = async (): Promise<void> => {
-    try {
-      setIsLoading(true)
-      setStartCountdown(null)
-      if (loggedEmail !== '') {
-        setErrorMessage('')
-        setSuccessMessage('')
-        const response = await axios.post(`${process.env.REST_API_ENDPOINT}resend-otp`, { email: loggedEmail })
-        setSuccessMessage(response.data.message)
+    dispatch(unsetMessageActionCreator())
+    dispatch(setLoadingTrueActionCreator())
+    setStartCountdown(null)
+    if (loggedEmail !== '') {
+      const response = await api.resendOtp(loggedEmail)
+      if (response instanceof Error) {
+        if (axios.isAxiosError(response)) {
+          if (response.response?.data?.message !== undefined && response.response?.data?.message !== null) {
+            if (response.response?.data.message === 'Email Sudah Diverifikasi') {
+              dispatch(setMessageActionCreator({ error: true, text: `Email ${loggedEmail} Sudah Diverifikasi` }))
+              setTimeout(() => {
+                void router.push('/login')
+              }, 2000)
+            }
+          } else {
+            dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Pada Server, Coba Lagi' }))
+          }
+        } else {
+          dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Pada Server, Coba Lagi' }))
+        }
+      } else {
+        console.log(response)
+        dispatch(setMessageActionCreator({ error: false, text: response.message }))
         const interval = setInterval(() => {
           secondTimer = document?.querySelector('.second-timer')
           if (secondTimer !== undefined && secondTimer !== null) {
@@ -73,52 +94,39 @@ const VerifyOtp = (): ReactElement => {
           countdown = 60
         }, 60000)
       }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
-          setErrorMessage(error.response.data.message)
-        } else {
-          setErrorMessage('Terjadi Kesalahan, Coba Lagi')
-          console.error(error)
-        }
-        if (error.response?.data.message === 'Email Sudah Diverifikasi') {
-          setTimeout(() => {
-            void router.push('/login')
-          }, 2000)
-        }
-      } else {
-        console.error(error)
-      }
-    } finally {
-      setIsLoading(false)
     }
+    dispatch(setLoadingFalseActionCreator())
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
+    dispatch(unsetMessageActionCreator())
+    dispatch(setLoadingTrueActionCreator())
 
-    try {
-      setIsLoading(true)
-      setErrorMessage('')
-      const response = await axios.post(`${process.env.REST_API_ENDPOINT}verify`, { email: loggedEmail, otp: parseInt(otp) })
-      setSuccessMessage(response.data.message)
-      setTimeout(() => {
-        void router.push('/login')
-      }, 2000)
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
-          setErrorMessage(error.response.data.message)
+    if (otp.length < 6) {
+      dispatch(setMessageActionCreator({ error: true, text: 'Lengkapi Kode OTP' }))
+    }
+
+    if (loggedEmail !== '') {
+      const response = await api.verifyOtp(loggedEmail, parseInt(otp))
+      if (response instanceof Error) {
+        if (axios.isAxiosError(response)) {
+          if (response.response?.data?.message !== undefined && response.response?.data?.message !== null) {
+            dispatch(setMessageActionCreator({ error: true, text: response.response.data.message }))
+          } else {
+            dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Pada Server, Coba Lagi' }))
+          }
         } else {
-          setErrorMessage('Terjadi Kesalahan, Coba Lagi')
-          console.error(error)
+          dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Pada Server, Coba Lagi' }))
         }
       } else {
-        console.error(error)
+        dispatch(setMessageActionCreator({ error: false, text: response.message }))
+        setTimeout(() => {
+          void router.push('/login')
+        }, 2000)
       }
-    } finally {
-      setIsLoading(false)
     }
+    dispatch(setLoadingFalseActionCreator())
   }
 
   return (
@@ -137,15 +145,16 @@ const VerifyOtp = (): ReactElement => {
           <form action='' autoComplete='off' onSubmit={(e) => { void handleSubmit(e) } } className='flex'>
             <div className='mx-auto text-center flex flex-col gap-y-6'>
               {
-                loggedEmail !== '' &&
-                  <p>Ketik 6 digit kode yang dikirimkan ke <span className='font-bold'>{loggedEmail}</span></p>
+                loggedEmail !== '' && !isLoading
+                  ? <p>Ketik 6 digit kode yang dikirimkan ke <span className='font-bold'>{loggedEmail}</span></p>
+                  : <p>Verifikasi OTP</p>
               }
               {
                 startCountdown === true
                   ? <p>Anda dapat meminta ulang OTP dalam <span className='second-timer'></span> detik</p>
                   : startCountdown === false
                     ? <button type='button' onClick={() => { void resendOtp() }} className='text-white rounded-2xl px-6 py-3 text-sm bg-purple-600 w-fit mx-auto'>Kirim Ulang</button>
-                    : null
+                    : <p>Tekan tombol di posisi ini untuk meminta kode OTP</p>
               }
               <OtpInput value={otp} valueLength={6} onChange={onChangeOtp} />
               <button type='submit' className={`w-full text-white rounded-2xl px-6 py-3 text-sm ${isLoading ? 'bg-slate-400 cursor-not-allowed' : 'bg-purple-600'}`} disabled={isLoading}>
@@ -155,15 +164,9 @@ const VerifyOtp = (): ReactElement => {
                     : 'Verifikasi'
                 }
               </button>
-              <div className='flex'>
-                <span className={`${errorMessage === '' && successMessage === '' ? 'h-0 w-0 opacity-0' : 'h-fit w-fit opacity-100 px-6 py-2'} duration-300 text-sm mx-auto text-white rounded-2xl text-center ${errorMessage !== '' && 'bg-red-600'} ${successMessage !== '' && 'bg-green-400'}`}>
-                  {
-                    errorMessage === '' && successMessage === ''
-                      ? ''
-                      : errorMessage !== ''
-                        ? errorMessage
-                        : successMessage
-                  }
+              <div className='flex mt-6'>
+                <span className={`${message === null ? 'h-0 w-0 opacity-0' : 'h-fit w-fit opacity-100 px-6 py-2'} ${message?.error === true ? 'bg-red-600' : 'bg-green-400'} duration-300 text-sm mx-auto text-white rounded-2xl text-center`}>
+                  {message?.text}
                 </span>
               </div>
             </div>

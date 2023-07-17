@@ -48,12 +48,32 @@ const api = (() => {
     }
   }
 
+  const resendOtp = async (email: string): Promise<any> => {
+    try {
+      const response = await axios.post(`${BASE_URL}resend-otp`, { email })
+      return response.data
+    } catch (error) {
+      return error
+    }
+  }
+
+  const verifyOtp = async (loggedEmail: string, otp: number): Promise<any> => {
+    try {
+      const response = await axios.post(`${BASE_URL}verify`, { email: loggedEmail, otp })
+      return response.data
+    } catch (error) {
+      return error
+    }
+  }
+
   return {
     putAccessToken,
     getAccessToken,
     login,
     getProfile,
-    register
+    register,
+    resendOtp,
+    verifyOtp
   }
 })()
 
