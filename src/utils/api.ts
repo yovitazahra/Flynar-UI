@@ -66,6 +66,24 @@ const api = (() => {
     }
   }
 
+  const forgotPassword = async (email: string): Promise<any> => {
+    try {
+      const response = await axios.put(`${BASE_URL}forgot-password`, { email })
+      return response.data
+    } catch (error) {
+      return error
+    }
+  }
+
+  const resetPassword = async (token: string, password: string, confirmation: string): Promise<any> => {
+    try {
+      const response = await axios.put(`${BASE_URL}reset-password`, { token, password, confirmation })
+      return response.data
+    } catch (error) {
+      return error
+    }
+  }
+
   return {
     putAccessToken,
     getAccessToken,
@@ -73,7 +91,9 @@ const api = (() => {
     getProfile,
     register,
     resendOtp,
-    verifyOtp
+    verifyOtp,
+    forgotPassword,
+    resetPassword
   }
 })()
 

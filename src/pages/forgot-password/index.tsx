@@ -1,56 +1,52 @@
 import { type ReactElement, useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import Head from 'next/head'
 import Image from 'next/image'
 import axios from 'axios'
 import AuthPageLayout from '@/layouts/auth'
-import { useRouter } from 'next/router'
+import type { RootState } from '@/store/index'
+import { setMessageActionCreator, unsetMessageActionCreator } from '@/store/message/action'
+import { setLoadingTrueActionCreator, setLoadingFalseActionCreator } from '@/store/isLoading/action'
+import api from '@/utils/api'
 
 const ForgotPassword = (): ReactElement => {
+  const dispatch = useDispatch()
+
+  const message: Record<string, any> | null = useSelector((state: RootState) => state.message)
+  const isLoading: boolean = useSelector((state: RootState) => state.isLoading)
   const [email, setEmail] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
-  const [successMessage, setSuccessMessage] = useState('')
-  const router = useRouter()
 
   useEffect(() => {
-    if (errorMessage !== '') {
-      setErrorMessage('')
-    }
-    if (successMessage !== '') {
-      setSuccessMessage('')
+    if (message !== null) {
+      dispatch(unsetMessageActionCreator())
     }
   }, [email])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
+    dispatch(unsetMessageActionCreator())
 
     if (email === '') {
-      setErrorMessage('Mohon Lengkapi Data')
+      dispatch(setMessageActionCreator({ error: true, text: 'Mohon Lengkapi Data' }))
       return
     }
 
-    try {
-      setIsLoading(true)
-      setErrorMessage('')
-      const response = await axios.put(`${process.env.REST_API_ENDPOINT}forgot-password`, { email })
-      setSuccessMessage(response.data.message)
-      setTimeout(() => {
-        void router.push('/reset-password')
-      }, 2000)
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
-          setErrorMessage(error.response.data.message)
+    dispatch(setLoadingTrueActionCreator())
+    const response = await api.forgotPassword(email)
+    if (response instanceof Error) {
+      if (axios.isAxiosError(response)) {
+        if (response.response?.data?.message !== undefined && response.response?.data?.message !== null) {
+          dispatch(setMessageActionCreator({ error: true, text: response.response.data.message }))
         } else {
-          setErrorMessage('Terjadi Kesalahan, Coba Lagi')
-          console.error(error)
+          dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Pada Server, Coba Lagi' }))
         }
       } else {
-        console.error(error)
+        dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Pada Server, Coba Lagi' }))
       }
-    } finally {
-      setIsLoading(false)
+    } else {
+      dispatch(setMessageActionCreator({ error: false, text: response.message }))
     }
+    dispatch(setLoadingFalseActionCreator())
   }
 
   return (
@@ -78,18 +74,12 @@ const ForgotPassword = (): ReactElement => {
                 {
                   isLoading
                     ? 'Tunggu Sebentar'
-                    : 'Kirim Token'
+                    : 'Kirim Link'
                 }
               </button>
               <div className='flex mt-6'>
-                <span className={`${errorMessage === '' && successMessage === '' ? 'h-0 w-0 opacity-0' : 'h-fit w-fit opacity-100 px-6 py-2'} duration-300 text-sm mx-auto text-white rounded-2xl text-center ${errorMessage !== '' && 'bg-red-600'} ${successMessage !== '' && 'bg-green-400'}`}>
-                  {
-                    errorMessage === '' && successMessage === ''
-                      ? ''
-                      : errorMessage !== ''
-                        ? errorMessage
-                        : successMessage
-                  }
+                <span className={`${message === null ? 'h-0 w-0 opacity-0' : 'h-fit w-fit opacity-100 px-6 py-2'} ${message?.error === true ? 'bg-red-600' : 'bg-green-400'} duration-300 text-sm mx-auto text-white rounded-2xl text-center`}>
+                  {message?.text}
                 </span>
               </div>
             </form>
