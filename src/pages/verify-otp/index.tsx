@@ -7,6 +7,7 @@ import { useRouter } from 'next/router'
 import { getCookie } from 'cookies-next'
 import AuthPageLayout from '@/layouts/auth'
 import OtpInput from '@/components/OtpInput'
+import ShortMessage from '@/components/ShortMessage'
 import type { RootState } from '@/store/index'
 import { setMessageActionCreator, unsetMessageActionCreator } from '@/store/message/action'
 import { setLoadingTrueActionCreator, setLoadingFalseActionCreator } from '@/store/isLoading/action'
@@ -75,7 +76,6 @@ const VerifyOtp = (): ReactElement => {
           dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Pada Server, Coba Lagi' }))
         }
       } else {
-        console.log(response)
         dispatch(setMessageActionCreator({ error: false, text: response.message }))
         const interval = setInterval(() => {
           secondTimer = document?.querySelector('.second-timer')
@@ -161,11 +161,7 @@ const VerifyOtp = (): ReactElement => {
                     : 'Verifikasi'
                 }
               </button>
-              <div className='flex mt-6'>
-                <span className={`${message === null ? 'h-0 w-0 opacity-0' : 'h-fit w-fit opacity-100 px-6 py-2'} ${message?.error === true ? 'bg-red-600' : 'bg-green-400'} duration-300 text-sm mx-auto text-white rounded-2xl text-center`}>
-                  {message?.text}
-                </span>
-              </div>
+              <ShortMessage message={message} />
             </div>
           </form>
         </div>

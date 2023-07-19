@@ -9,6 +9,7 @@ import { setCookie } from 'cookies-next'
 import axios from 'axios'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import AuthPageLayout from '@/layouts/auth'
+import ShortMessage from '@/components/ShortMessage'
 import isEmailValid from '@/utils/isEmailValid'
 import type { RootState } from '@/store/index'
 import { setMessageActionCreator, unsetMessageActionCreator } from '@/store/message/action'
@@ -130,11 +131,7 @@ const Register = (): ReactElement => {
                 <p className='text-sm text-center mt-8'>Sudah punya akun?{' '}
                   <Link href='/login' className='text-purple-700 font-bold'>Masuk di sini</Link>
                 </p>
-                <div className='flex mt-6'>
-                  <span className={`${message === null ? 'h-0 w-0 opacity-0' : 'h-fit w-fit opacity-100 px-6 py-2'} ${message?.error === true ? 'bg-red-600' : 'bg-green-400'} duration-300 text-sm mx-auto text-white rounded-2xl text-center`}>
-                    {message?.text}
-                  </span>
-                </div>
+                <ShortMessage message={message} />
               </form>
             </div>
           </div>
