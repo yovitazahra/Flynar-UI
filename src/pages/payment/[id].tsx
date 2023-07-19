@@ -6,11 +6,10 @@ import Head from 'next/head'
 import axios from 'axios'
 import Header from '@/components/Header'
 import { useRouter } from 'next/router'
-import checkLoggedIn from '@/utils/checkLoggedIn'
 
 const Payment = (): ReactElement => {
   useEffect(() => {
-    const status = checkLoggedIn()
+    const status = false
     setIsLoggedIn(status)
   }, [])
 

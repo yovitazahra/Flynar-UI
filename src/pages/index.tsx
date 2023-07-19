@@ -9,7 +9,6 @@ import 'react-datepicker/dist/react-datepicker.css'
 import Image from 'next/image'
 import { faCalendarDays, faCouch, faPlaneDeparture, faRetweet, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import checkLoggedIn from '@/utils/checkLoggedIn'
 
 const Home = (): ReactElement => {
   const router = useRouter()
@@ -34,7 +33,7 @@ const Home = (): ReactElement => {
   }, [])
 
   useEffect(() => {
-    const status = checkLoggedIn()
+    const status = false
     setIsLoggedIn(status)
   }, [])
 

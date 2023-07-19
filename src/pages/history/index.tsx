@@ -6,13 +6,12 @@ import Head from 'next/head'
 import axios from 'axios'
 import Header from '@/components/Header'
 import { useRouter } from 'next/router'
-import checkLoggedIn from '@/utils/checkLoggedIn'
 import Link from 'next/link'
 
 const History = (): ReactElement => {
   useEffect(() => {
     void fetchCheckouts()
-    const status = checkLoggedIn()
+    const status = false
     setIsLoggedIn(status)
   }, [])
 

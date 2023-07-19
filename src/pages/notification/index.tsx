@@ -7,7 +7,6 @@ import Head from 'next/head'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import NotificationItem from '../../components/NotificationItem'
-import checkLoggedIn from '@/utils/checkLoggedIn'
 
 const Notification = (): ReactElement => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -16,7 +15,7 @@ const Notification = (): ReactElement => {
 
   useEffect(() => {
     void fetchNotifiaction()
-    const status = checkLoggedIn()
+    const status = false
     setIsLoggedIn(status)
   }, [])
 
