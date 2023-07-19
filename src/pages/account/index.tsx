@@ -1,114 +1,115 @@
 import { useEffect, useState, type ReactElement } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+import axios from 'axios'
+import { FiEdit3, FiSettings, FiLogOut } from 'react-icons/fi'
 import DefaultLayout from '@/layouts/default'
 import MenuHeader from '@/components/MenuHeader'
-import { FiEdit3, FiSettings, FiLogOut } from 'react-icons/fi'
-import Head from 'next/head'
-import axios from 'axios'
 import Header from '@/components/Header'
-import { useRouter } from 'next/router'
-import checkLoggedIn from '@/utils/checkLoggedIn'
+import ShortMessage from '@/components/ShortMessage'
+import type { RootState } from '@/store/index'
+import { asyncUpdateAuthUser, asyncUnsetAuthUser } from '@/store/authUser/action'
+import { setMessageActionCreator, unsetMessageActionCreator } from '@/store/message/action'
+import { setLoadingTrueActionCreator, setLoadingFalseActionCreator } from '@/store/isLoading/action'
+import api from '@/utils/api'
 
 const Account = (): ReactElement => {
+  const dispatch = useDispatch()
+  const router = useRouter()
+
+  const message: Record<string, any> | null = useSelector((state: RootState) => state.message)
+  const authUser: Record<string, any> | null = useSelector((state: RootState) => state.authUser)
+  const isLoading: boolean = useSelector((state: RootState) => state.isLoading)
+
   useEffect(() => {
-    void fetchUser()
-    const status = checkLoggedIn()
-    setIsLoggedIn(status)
+    if (authUser === null) {
+      void fetchUser()
+    } else {
+      setName(authUser.name)
+      setPhoneNumber(authUser.phoneNumber)
+      setEmail(authUser.email)
+    }
   }, [])
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const router = useRouter()
   const [name, setName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [email, setEmail] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
-  const [successMessage, setSuccessMessage] = useState('')
 
   useEffect(() => {
-    if (errorMessage !== '') {
-      setErrorMessage('')
-    }
-    if (successMessage !== '') {
-      setSuccessMessage('')
+    if (message !== null) {
+      dispatch(unsetMessageActionCreator())
     }
   }, [name, phoneNumber])
 
   const fetchUser = async (): Promise<void> => {
-    const accessToken = sessionStorage.getItem('accessToken')
-    try {
-      setIsLoading(true)
-      setErrorMessage('')
-      const response = await axios.get(`${process.env.REST_API_ENDPOINT}profile`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      })
-      setName(response.data.data.name)
-      setPhoneNumber(response.data.data.phoneNumber)
-      setEmail(response.data.data.email)
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
-          if (error.response.data.message === 'Silahkan Login') {
-            setErrorMessage(error.response.data.message)
+    dispatch(unsetMessageActionCreator())
+    dispatch(setLoadingTrueActionCreator())
+    const response = await api.getProfile()
+    if (response instanceof Error) {
+      if (axios.isAxiosError(response)) {
+        if (response.response?.data?.message !== undefined && response.response?.data?.message !== null) {
+          if (response.response.data.message === 'Silahkan Login') {
+            dispatch(setMessageActionCreator({ error: true, text: response.response.data.message }))
             setTimeout(() => {
               void router.push('/login')
             }, 2000)
           } else {
-            setErrorMessage(error.response.data.message)
+            dispatch(setMessageActionCreator({ error: true, text: response.response.data.message }))
           }
         } else {
-          console.error(error)
+          dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Pada Server, Coba Lagi' }))
         }
       } else {
-        console.error(error)
+        dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Pada Server, Coba Lagi' }))
       }
-    } finally {
-      setIsLoading(false)
+    } else {
+      setName(response.data.name)
+      setPhoneNumber(response.data.phoneNumber)
+      setEmail(response.data.email)
     }
+    dispatch(setLoadingFalseActionCreator())
   }
 
   const updateProfile = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
-    const accessToken = sessionStorage.getItem('accessToken')
-    setIsLoading(true)
-    setErrorMessage('')
-    setSuccessMessage('')
-    try {
-      const response = await axios.put(`${process.env.REST_API_ENDPOINT}profile/update`, { name, phoneNumber }, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      })
-      setSuccessMessage('Profil Berhasil Diubah')
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
-          if (error.response.data.message === 'Silahkan Login') {
-            setErrorMessage(error.response.data.message)
-            setTimeout(() => {
-              void router.push('/login')
-            }, 2000)
-          } else {
-            setErrorMessage(error.response.data.message)
-          }
+    dispatch(unsetMessageActionCreator())
+    dispatch(setLoadingTrueActionCreator())
+    const response = await dispatch(asyncUpdateAuthUser(name, phoneNumber))
+    if (response instanceof Error) {
+      if (axios.isAxiosError(response)) {
+        if (response.response?.data?.message !== undefined && response.response?.data?.message !== null) {
+          dispatch(setMessageActionCreator({ error: true, text: response.response.data.message }))
         } else {
-          console.error(error)
+          dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Pada Server, Coba Lagi' }))
         }
       } else {
-        console.error(error)
+        dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Pada Server, Coba Lagi' }))
       }
-    } finally {
-      setIsLoading(false)
+    } else {
+      dispatch(setMessageActionCreator({ error: false, text: 'Profil Berhasil Diubah' }))
     }
+    dispatch(setLoadingFalseActionCreator())
   }
 
   const logout = async (): Promise<void> => {
-    sessionStorage.removeItem('accessToken')
-    setSuccessMessage('Terima Kasih')
-    setTimeout(() => {
-      void router.push('/login')
-    }, 2000)
+    const response = dispatch(asyncUnsetAuthUser())
+    if (response instanceof Error) {
+      if (axios.isAxiosError(response)) {
+        if (response.response?.data?.message !== undefined && response.response?.data?.message !== null) {
+          dispatch(setMessageActionCreator({ error: true, text: response.response.data.message }))
+        } else {
+          dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Pada Server, Coba Lagi' }))
+        }
+      } else {
+        dispatch(setMessageActionCreator({ error: true, text: 'Kesalahan Pada Server, Coba Lagi' }))
+      }
+    } else {
+      dispatch(setMessageActionCreator({ error: false, text: 'Terima Kasih' }))
+      setTimeout(() => {
+        void router.push('/')
+      }, 1500)
+    }
   }
 
   return (
@@ -117,7 +118,7 @@ const Account = (): ReactElement => {
         <title>Account</title>
       </Head>
       <div id='account-page' className=''>
-        <Header isLoggedIn={isLoggedIn} login={async () => {}}/>
+        <Header isLoggedIn={authUser} login={async () => {}}/>
         <main className='mx-auto'>
           <MenuHeader pageTitle={'Akun'} />
           <div className='container flex justify-center flex-col gap-y-4 lg:flex-row lg:gap-y-0 w-4/5 mx-auto gap-x-8'>
@@ -140,17 +141,7 @@ const Account = (): ReactElement => {
                   Keluar
                 </button>
               </div>
-              <div className='flex mt-6 mb-2'>
-                <span className={`${errorMessage === '' && successMessage === '' ? 'h-0 w-0 opacity-0' : 'h-fit w-fit opacity-100 px-6 py-2'} duration-300 text-sm mx-auto text-white rounded-2xl text-center ${errorMessage !== '' && 'bg-red-600'} ${successMessage !== '' && 'bg-green-400'}`}>
-                  {
-                    errorMessage === '' && successMessage === ''
-                      ? ''
-                      : errorMessage !== ''
-                        ? errorMessage
-                        : successMessage
-                  }
-                </span>
-              </div>
+              <ShortMessage message={message} />
             </div>
             <div className='lg:w-3/5'>
               <div className='border-2'>

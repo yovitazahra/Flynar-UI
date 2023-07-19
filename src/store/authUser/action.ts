@@ -3,6 +3,7 @@ import api from '@/utils/api'
 
 const ActionType = {
   SET_AUTH_USER: 'SET_AUTH_USER',
+  UPDATE_AUTH_USER: 'UPDATE_AUTH_USER',
   UNSET_AUTH_USER: 'UNSET_AUTH_USER'
 }
 
@@ -41,10 +42,35 @@ const asyncSetAuthUser = ({ identifier = '', password = '' }): any => {
   }
 }
 
-const asyncUnsetAuthUser = () => {
-  return (dispatch: Dispatch) => {
-    dispatch(unsetAuthUserActionCreator())
-    api.putAccessToken('')
+const asyncUpdateAuthUser = (name = '', phoneNumber = ''): any => {
+  return async (dispatch: Dispatch) => {
+    try {
+      const response = await api.updateProfile(name, phoneNumber)
+      if (response instanceof Error) {
+        return response
+      } else {
+        const { data } = await api.getProfile()
+        dispatch(setAuthUserActionCreator(data))
+      }
+    } catch (error: any) {
+      console.log(error.message)
+    }
+  }
+}
+
+const asyncUnsetAuthUser = (): any => {
+  return async (dispatch: Dispatch) => {
+    try {
+      const response = await api.logout()
+      if (response instanceof Error) {
+        return response
+      } else {
+        dispatch(unsetAuthUserActionCreator())
+        api.putAccessToken('')
+      }
+    } catch (error: any) {
+      console.log(error.message)
+    }
   }
 }
 
@@ -53,5 +79,6 @@ export {
   setAuthUserActionCreator,
   unsetAuthUserActionCreator,
   asyncSetAuthUser,
+  asyncUpdateAuthUser,
   asyncUnsetAuthUser
 }

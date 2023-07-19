@@ -13,7 +13,21 @@ const api = (() => {
 
   const login = async ({ identifier = '', password = '' }): Promise<any> => {
     try {
-      const response = await axios.post(`${BASE_URL}login`, { identifier, password })
+      const response = await axios.post(`${BASE_URL}login`, { identifier, password }, {
+        withCredentials: true
+      })
+      return response.data
+    } catch (error) {
+      console.error(error)
+      return error
+    }
+  }
+
+  const logout = async (): Promise<any> => {
+    try {
+      const response = await axios.delete(`${BASE_URL}logout`, {
+        withCredentials: true
+      })
       return response.data
     } catch (error) {
       console.error(error)
@@ -26,7 +40,22 @@ const api = (() => {
       const response = await axios.get(`${BASE_URL}profile`, {
         headers: {
           Authorization: `Bearer ${getAccessToken()}`
-        }
+        },
+        withCredentials: true
+      })
+      return response.data
+    } catch (error) {
+      return error
+    }
+  }
+
+  const updateProfile = async (name: string, phoneNumber: string): Promise<any> => {
+    try {
+      const response = await axios.put(`${BASE_URL}profile/update`, { name, phoneNumber }, {
+        headers: {
+          Authorization: `Bearer ${getAccessToken()}`
+        },
+        withCredentials: true
       })
       return response.data
     } catch (error) {
@@ -41,6 +70,8 @@ const api = (() => {
         email,
         password,
         phoneNumber
+      }, {
+        withCredentials: true
       })
       return response.data
     } catch (error) {
@@ -50,7 +81,9 @@ const api = (() => {
 
   const resendOtp = async (email: string): Promise<any> => {
     try {
-      const response = await axios.post(`${BASE_URL}resend-otp`, { email })
+      const response = await axios.post(`${BASE_URL}resend-otp`, { email }, {
+        withCredentials: true
+      })
       return response.data
     } catch (error) {
       return error
@@ -59,7 +92,9 @@ const api = (() => {
 
   const verifyOtp = async (loggedEmail: string, otp: number): Promise<any> => {
     try {
-      const response = await axios.post(`${BASE_URL}verify`, { email: loggedEmail, otp })
+      const response = await axios.post(`${BASE_URL}verify`, { email: loggedEmail, otp }, {
+        withCredentials: true
+      })
       return response.data
     } catch (error) {
       return error
@@ -68,7 +103,9 @@ const api = (() => {
 
   const forgotPassword = async (email: string): Promise<any> => {
     try {
-      const response = await axios.put(`${BASE_URL}forgot-password`, { email })
+      const response = await axios.put(`${BASE_URL}forgot-password`, { email }, {
+        withCredentials: true
+      })
       return response.data
     } catch (error) {
       return error
@@ -77,7 +114,9 @@ const api = (() => {
 
   const resetPassword = async (token: string, password: string, confirmation: string): Promise<any> => {
     try {
-      const response = await axios.put(`${BASE_URL}reset-password`, { token, password, confirmation })
+      const response = await axios.put(`${BASE_URL}reset-password`, { token, password, confirmation }, {
+        withCredentials: true
+      })
       return response.data
     } catch (error) {
       return error
@@ -88,7 +127,9 @@ const api = (() => {
     putAccessToken,
     getAccessToken,
     login,
+    logout,
     getProfile,
+    updateProfile,
     register,
     resendOtp,
     verifyOtp,
