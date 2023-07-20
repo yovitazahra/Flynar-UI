@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = (() => {
-  const BASE_URL = process.env.ENVIRONMENT === 'production' ? 'https://flynar-rest-api-production.up.railway.app/api/v1/' : 'http://localhost:8000/api/v1/'
+  const BASE_URL = process.env.ENVIRONMENT === 'production' ? 'https://flynar-rest-api.up.railway.app/api/v1/' : 'http://localhost:8000/api/v1/'
 
   const putAccessToken = (token: string): void => {
     sessionStorage.setItem('accessToken', token)
