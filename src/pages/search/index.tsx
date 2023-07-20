@@ -1,8 +1,6 @@
 import type { ReactElement } from 'react'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHeart, faDollarSign, faArrowLeft, faArrowUp, faArrowDown, faCube, faCubes, faChevronRight, faChevronDown, faGlobe, faClock } from '@fortawesome/free-solid-svg-icons'
 import Header from '../../components/Header'
 import axios from 'axios'
 import { useRouter } from 'next/router'

@@ -7,8 +7,6 @@ import { useRouter } from 'next/router'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import Image from 'next/image'
-import { faCalendarDays, faCouch, faPlaneDeparture, faRetweet, faTimes } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Home = (): ReactElement => {
   const router = useRouter()

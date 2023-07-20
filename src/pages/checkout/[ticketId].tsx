@@ -2,8 +2,6 @@ import { useState, useEffect, type ReactElement } from 'react'
 import DefaultLayout from '@/layouts/default'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faGlobe } from '@fortawesome/free-solid-svg-icons'
 import { useRouter } from 'next/router'
 import axios from 'axios'
 
