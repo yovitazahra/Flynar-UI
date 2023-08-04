@@ -23,7 +23,7 @@ const NotFound = (): ReactElement => {
             </div>
           </div>
           <div className='order-1 lg:order-2'>
-            <Image src='/images/plane.svg' alt={'plane'} width={600} height={600} className='w-[200px] sm:w-[300px] md:w-[500px] lg:w-[600px]' ></Image>
+            <Image src='/images/not-found.svg' alt={'plane'} width={600} height={600} className='w-[200px] sm:w-[300px] md:w-[500px] lg:w-[600px]' ></Image>
           </div>
         </div>
       </main>
