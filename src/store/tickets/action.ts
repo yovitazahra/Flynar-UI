@@ -6,7 +6,7 @@ const ActionType = {
   UNSET_TICKETS: 'UNSET_TICKETS'
 }
 
-const setTicketsActionCreator = (tickets: [] = []): AnyAction => {
+const setTicketsActionCreator = (tickets: any[] = []): AnyAction => {
   return {
     type: ActionType.SET_TICKETS,
     payload: {
@@ -22,7 +22,14 @@ const asyncGetTicketWithFavDestination = (favoriteDestination: string): any => {
       if (response instanceof Error) {
         return response
       } else {
-        dispatch(setTicketsActionCreator(response.data))
+        const selectedTickets: any[] = []
+        for (let i = 0; i < 5; i++) {
+          const index = Math.floor(Math.random() * response.data.length)
+          const item = response.data[index]
+          response.data.splice(index, 1)
+          selectedTickets.push(item)
+        }
+        dispatch(setTicketsActionCreator(selectedTickets))
       }
     } catch (error: any) {
       console.log(error.message)
