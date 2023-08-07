@@ -25,6 +25,17 @@ input::-ms-reveal, input::-ms-clear {
   background-size: cover;
 }
 
+/* HOME TICKET PREVIEW */
+.home-ticket-preview .class-seat {
+  filter: drop-shadow(0 1px 1px rgb(255 255 255 / 1)) drop-shadow(0 1px 1px rgb(255 255 255 / 1));
+}
+
+/* BANNER */
+.banner .welcome {
+  background-color: #FFE9CA;
+}
+
+/* LOADER */
 .toggle-password > svg {
   height: 90%;
   width: 90%;
@@ -103,3 +114,13 @@ input::-ms-reveal, input::-ms-clear {
     box-shadow: .2em -.2em 0 0 currentcolor;
   }
 }
+
+/* HOVER IMAGE */
+.hover-zoom-image img {
+  transition: transform .5s;
+}
+
+.hover-zoom-image:hover img {
+  transform: scale(1.05);
+}
+
