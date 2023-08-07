@@ -11,7 +11,6 @@ const formatPrice = (rawPrice: string): string => {
     }
   }
   priceParts.push(temp)
-  console.log(priceParts)
 
   for (let i = priceParts.length; i > 0; i--) {
     formattedPrice = formattedPrice + priceParts[i - 1]
