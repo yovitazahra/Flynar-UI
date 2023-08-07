@@ -173,6 +173,20 @@ const api = (() => {
     }
   }
 
+  const fetchCityOptions = async (isDepature: boolean): Promise<any> => {
+    try {
+      if (isDepature) {
+        const response = await axios.get(`${BASE_URL}cities/departure`)
+        return response.data
+      } else {
+        const response = await axios.get(`${BASE_URL}cities/arrival`)
+        return response.data
+      }
+    } catch (error) {
+      return error
+    }
+  }
+
   return {
     putAccessToken,
     getAccessToken,
@@ -186,7 +200,8 @@ const api = (() => {
     forgotPassword,
     resetPassword,
     fetchTicketsByFavDestination,
-    createCheckoutFromHomePage
+    createCheckoutFromHomePage,
+    fetchCityOptions
   }
 })()
 
