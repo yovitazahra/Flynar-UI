@@ -78,7 +78,7 @@ const SearchFlight = (): ReactElement => {
         <div>
           <div className='flex gap-3 pb-[20px]'>
             <span className='flex bg-blue-700 text-white text-base font-medium border rounded-md items-center w-[700px] h-[50px]'>
-              <Link href={'/'}><button className='px-[15px]' ><FontAwesomeIcon icon={faArrowLeft} className='' /></button></Link>
+              <Link href={'/'}><button className='px-[15px]' ><FontAwesomeIcon icon={faArrowLeft} /></button></Link>
             Fasilitas {departureCity} {'>'} {arrivalCity}</span>
             <div className='search-green-button'>
               <Link href={'/'}> <button className='w-[220px] h-[50px] bg-hijau shadow-3xl border rounded-md '><span className='font-bold text-base text-white'>Ubah Pencarian</span></button></Link>

@@ -23,7 +23,7 @@ const NotificationItem = ({ id, title, label, text, isRead, createdAt, readNotif
       <div className='w-full flex flex-col gap-y-3 md:gap-y-1'>
         <div className='flex flex-col md:flex-row justify-between text-base text-gray-400'>
           <span>{label}</span>
-          <span className=''>{`${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}, ${date.getHours()}:${date.getMinutes()}`}</span>
+          <span>{`${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}, ${date.getHours()}:${date.getMinutes()}`}</span>
         </div>
         <p className='text-lg'>{title}</p>
         <div className='flex flex-col md:flex-row justify-between text-base'>
