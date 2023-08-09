@@ -15,7 +15,7 @@ interface ICitySearchModalProps {
 const CitySearchModal = ({ isSearchCityModalShowed, onChangeSearchCityModalShowed, cities, cityInput, onChangeCityInput, selectCity, isDepartureCity }: ICitySearchModalProps): ReactElement => {
   return (
     <div className={`${!isSearchCityModalShowed ? 'hidden ' : ''}fixed z-20 top-0 left-0 w-screen h-screen flex`}>
-      <div className='bg-gray-600 absolute w-full h-full opacity-50' onClick={() => { onChangeSearchCityModalShowed(false) }}></div>
+      <div className='bg-gray-600 absolute w-full h-full opacity-50' onClick={() => { onChangeSearchCityModalShowed(false) }}/>
       <div className='relative w-1/2 h-1/2 bg-white z-30 m-auto rounded-2xl p-6 flex flex-col'>
         <div className='flex mb-6 items-center gap-x-2'>
           <div className='flex w-full items-center gap-x-2 border-2 p-2 rounded-lg'>

@@ -12,9 +12,9 @@ interface IHomeTicketPreview {
 
 const HomeTicketPreview = ({ ticket, createCheckout }: IHomeTicketPreview): ReactElement => {
   return (
-    <div className='home-ticket-preview hover-zoom-image cursor-pointer flex flex-col gap-y-3  ' onClick={() => { createCheckout(`${ticket.id}`) }}>
+    <div className='home-ticket-preview hover-zoom-image cursor-pointer flex flex-col gap-y-3' onClick={() => { createCheckout(`${ticket.id}`) }}>
       <div className='relative h-36 overflow-hidden rounded-xl'>
-        <p className='absolute z-10 top-2 right-2 bg-blue-500 text-sm text-white py-1 pr-2 pl-3 rounded-xl class-seat tracking-wider'>{ticket.classSeat}</p>
+        <p className='absolute z-5 top-2 right-2 bg-blue-500 text-sm text-white py-1 pr-2 pl-3 rounded-xl class-seat tracking-wider'>{ticket.classSeat}</p>
         <Image src={`/images/destination/${ticket.flight.arrivalCity}.jpg`} width={200} height={200} priority={true} alt={ticket.flight.arrivalCity} className='w-full h-full'/>
       </div>
       <div>
