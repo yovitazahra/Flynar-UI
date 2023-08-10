@@ -66,7 +66,7 @@ const Notification = (): ReactElement => {
       <Head>
         <title>Notification</title>
       </Head>
-      <div id='notification-page' className=''>
+      <div id='notification-page'>
         <Header isLoggedIn={isLoggedIn} login={async () => {}}/>
         <main className='mx-auto'>
           <MenuHeader pageTitle='Notifikasi' />

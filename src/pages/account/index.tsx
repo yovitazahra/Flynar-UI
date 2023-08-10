@@ -117,7 +117,7 @@ const Account = (): ReactElement => {
       <Head>
         <title>Account</title>
       </Head>
-      <div id='account-page' className=''>
+      <div id='account-page'>
         <Header isLoggedIn={authUser} login={async () => {}}/>
         <main className='mx-auto'>
           <MenuHeader pageTitle={'Akun'} />

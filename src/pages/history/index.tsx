@@ -60,7 +60,7 @@ const History = (): ReactElement => {
       <Head>
         <title>History</title>
       </Head>
-      <div id='history-page' className=''>
+      <div id='history-page'>
         <Header isLoggedIn={isLoggedIn} login={async () => {}}/>
         <main className='mx-auto'>
           <MenuHeader pageTitle={'Riwayat'} />

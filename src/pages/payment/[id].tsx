@@ -22,7 +22,7 @@ const Payment = (): ReactElement => {
       <Head>
         <title>Payment</title>
       </Head>
-      <div id='payment-page' className=''>
+      <div id='payment-page'>
         <Header isLoggedIn={isLoggedIn} login={async () => {}}/>
         <main className='mx-auto'>
           <h2>Payment Page</h2>

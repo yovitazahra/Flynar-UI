@@ -123,6 +123,70 @@ const api = (() => {
     }
   }
 
+  const fetchTicketsByFavDestination = async (favoriteDestination: string): Promise<any> => {
+    try {
+      const response = await axios.get(`${BASE_URL}search?arrivalCity=${favoriteDestination}`,
+        {
+          withCredentials: true
+        })
+      return response.data
+    } catch (error) {
+      return error
+    }
+  }
+
+  const createCheckoutFromHomePage = async (
+    fullName: string = '',
+    familyName: string = '',
+    phoneNumber: string = '',
+    email: string = '',
+    price: number = 0,
+    total: number = 1,
+    isRoundTrip: boolean = false,
+    ticketId: string,
+    departureSeat: string = '',
+    returnSeat: string = '',
+    passengersData: string = ''
+  ): Promise<any> => {
+    try {
+      const response = await axios.post(`${BASE_URL}checkout/homepage`, {
+        fullName,
+        familyName,
+        phoneNumber,
+        email,
+        price,
+        total,
+        isRoundTrip,
+        ticketId,
+        departureSeat,
+        returnSeat,
+        passengersData
+      }, {
+        headers: {
+          Authorization: `Bearer ${getAccessToken()}`
+        },
+        withCredentials: true
+      })
+      return response.data
+    } catch (error) {
+      return error
+    }
+  }
+
+  const fetchCityOptions = async (isDepature: boolean): Promise<any> => {
+    try {
+      if (isDepature) {
+        const response = await axios.get(`${BASE_URL}cities/departure`)
+        return response.data
+      } else {
+        const response = await axios.get(`${BASE_URL}cities/arrival`)
+        return response.data
+      }
+    } catch (error) {
+      return error
+    }
+  }
+
   return {
     putAccessToken,
     getAccessToken,
@@ -134,7 +198,10 @@ const api = (() => {
     resendOtp,
     verifyOtp,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    fetchTicketsByFavDestination,
+    createCheckoutFromHomePage,
+    fetchCityOptions
   }
 })()
 

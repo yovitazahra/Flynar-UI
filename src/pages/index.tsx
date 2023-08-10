@@ -1,83 +1,147 @@
 import { useState, useEffect, type ReactElement, type SetStateAction } from 'react'
-import DefaultLayout from '@/layouts/default'
-import Head from 'next/head'
-import Header from '@/components/Header'
-import axios from 'axios'
+import { useDispatch, useSelector } from 'react-redux'
 import { useRouter } from 'next/router'
-import DatePicker from 'react-datepicker'
-import 'react-datepicker/dist/react-datepicker.css'
+import Head from 'next/head'
 import Image from 'next/image'
-import { faCalendarDays, faCouch, faPlaneDeparture, faRetweet, faTimes } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import DatePicker from 'react-datepicker'
+import { AiOutlineSwap } from 'react-icons/ai'
+import { FaPlaneDeparture, FaPlaneArrival, FaRegCalendarAlt, FaCouch } from 'react-icons/fa'
+import { FiSearch } from 'react-icons/fi'
+import Switch from '@mui/material/Switch'
+import 'react-datepicker/dist/react-datepicker.css'
+import DefaultLayout from '@/layouts/default'
+import Header from '@/components/Header'
+import HomeTicketPreview from '@/components/HomeTicketPreview'
+import Loading from '@/components/Loading'
+import CitySearchModal from '@/components/CitySearchModal'
+import PassengersModal from '@/components/PassengersModal'
+import ClassSeatModal from '@/components/ClassSeatModal'
+import NotificationMessage from '@/components/NotificationMessage'
+import type { RootState } from '@/store/index'
+import { asyncSetAuthUser } from '@/store/authUser/action'
+import { asyncGetTicketWithFavDestination } from '@/store/tickets/action'
+import { asyncCreateCheckoutHomePage } from '@/store/checkout/action'
+import { setMessageActionCreator } from '@/store/message/action'
+import { setLoadingTrueActionCreator, setLoadingFalseActionCreator } from '@/store/isLoading/action'
+import api from '@/utils/api'
 
 const Home = (): ReactElement => {
+  const dispatch = useDispatch()
   const router = useRouter()
-  const cities = { Jakarta: 'Jakarta', Medan: 'Medan', Makassar: 'Makassar', Surabaya: 'Surabaya', Denpasar: 'Denpasar' }
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [departureCity, setDepartureCity] = useState(cities.Jakarta)
-  const [arrivalCity, setArrivalCity] = useState(cities.Denpasar)
+
+  const message: Record<string, any> | null = useSelector((state: RootState) => state.message)
+  const authUser: Record<string, any> | null = useSelector((state: RootState) => state.authUser)
+  const isLoading: boolean = useSelector((state: RootState) => state.isLoading)
+  const tickets: [] = useSelector((state: RootState) => state.tickets)
+
+  const [isNotificationMessageShowed, setIsNotificationMessageShowed] = useState(false)
+  const [departureCity, setDepartureCity] = useState('')
+  const [arrivalCity, setArrivalCity] = useState('')
   const [departureDate, setDepartureDate] = useState<SetStateAction<any>>(new Date())
-  const [arrivalDate, setArrivalDate] = useState<SetStateAction<any>>(new Date())
+  const [returnDate, setReturnDate] = useState<SetStateAction<any>>(new Date())
   const [adult, setAdult] = useState(1)
   const [child, setChild] = useState(0)
   const [baby, setBaby] = useState(0)
   const [showPassenger, setShowPassenger] = useState(false)
   const [totalPassenger, setTotalPassenger] = useState(1)
+  const [showClassSeat, setShowClassSeat] = useState(false)
   const [classSeat, setClassSeat] = useState('Economy')
   const [isRoundTrip, setIsRoundTrip] = useState(false)
-  const [tickets, setTickets] = useState([])
   const [favoriteDestination, setFavoriteDestination] = useState('')
+  const [favoriteDestinationOptions, setFavoriteDestinationOptions] = useState([])
+  const [isSearchCityModalShowed, setIsSearchCityModalShowed] = useState(false)
+  const [cityOptions, setCityOptions] = useState([])
+  const [cityInput, setCityInput] = useState('')
+  const [isDepartureCity, setIsDepartureCity] = useState(false)
 
   useEffect(() => {
     void fetchTickets()
+    void fetchFavoriteDestionation()
+    if (authUser === null) {
+      dispatch(asyncSetAuthUser({ identifier: '', password: '' }))
+    }
   }, [])
 
   useEffect(() => {
-    const status = false
-    setIsLoggedIn(status)
-  }, [])
-
-  useEffect(() => {
-    if (arrivalDate <= departureDate && isRoundTrip) {
-      setArrivalDate(departureDate)
+    if (returnDate <= departureDate && isRoundTrip) {
+      setReturnDate(departureDate)
     }
   }, [departureDate])
 
   useEffect(() => {
-    if (arrivalDate < departureDate && isRoundTrip) {
-      setDepartureDate(arrivalDate)
+    if (departureCity !== '' && departureCity === arrivalCity) {
+      setArrivalCity('')
     }
-  }, [arrivalDate])
+  }, [departureCity])
+
+  useEffect(() => {
+    if (arrivalCity !== '' && arrivalCity === departureCity) {
+      setDepartureCity('')
+    }
+  }, [arrivalCity])
+
+  useEffect(() => {
+    if (returnDate < departureDate && isRoundTrip) {
+      setDepartureDate(returnDate)
+    }
+  }, [returnDate])
+
+  useEffect(() => {
+    if (!isRoundTrip) {
+      setReturnDate('')
+    } else {
+      if (returnDate === '') {
+        setReturnDate(departureDate)
+      }
+    }
+  }, [isRoundTrip])
 
   useEffect(() => {
     void fetchTickets()
   }, [favoriteDestination])
 
   useEffect(() => {
-    if (!isRoundTrip) {
-      setArrivalDate('')
-    } else {
-      if (arrivalDate === '') {
-        setArrivalDate(departureDate)
-      }
+    if (adult < 1) {
+      setAdult(1)
     }
-  }, [isRoundTrip])
+  }, [adult])
+
+  useEffect(() => {
+    if (child < 0) {
+      setChild(0)
+    }
+  }, [child])
+
+  useEffect(() => {
+    if (baby < 0) {
+      setBaby(0)
+    }
+  }, [baby])
 
   const login = async (): Promise<void> => {
-    try {
-      const response = await axios.post(`${process.env.REST_API_ENDPOINT}login`, { identifier: '', password: '' })
-      sessionStorage.setItem('accessToken', response.data.accessToken)
-      setIsLoggedIn(true)
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.data?.message !== undefined && error.response?.data?.message !== null) {
-          if (error.response.data.message === 'Sesi Login Expired, Silahkan Login Ulang') {
-            void router.push('/login')
-          }
-        }
-      } else {
-        console.error(error)
-      }
+    dispatch(setLoadingTrueActionCreator())
+    const response = await dispatch(asyncSetAuthUser({ identifier: '', password: '' }))
+    if (response instanceof Error) {
+      setTimeout(() => {
+        void router.push('/login')
+      }, 1000)
+    } else {
+      void router.push('/')
+    }
+    dispatch(setLoadingFalseActionCreator())
+  }
+
+  const createCheckout = async (ticketId: string): Promise<void> => {
+    dispatch(setLoadingTrueActionCreator())
+    if (authUser === null) {
+      setTimeout(() => {
+        void router.push('/login')
+      }, 1000)
+    } else {
+      const response = await dispatch(asyncCreateCheckoutHomePage({ ticketId }))
+      setTimeout(() => {
+        void router.push(`/checkout/${response.id}`)
+      }, 2000)
     }
   }
 
@@ -86,16 +150,9 @@ const Home = (): ReactElement => {
   }
 
   const fetchTickets = async (): Promise<void> => {
-    try {
-      const response = await axios.get(`${process.env.REST_API_ENDPOINT}search?arrivalCity=${favoriteDestination}`)
-      setTickets(response.data.data.slice(0, 6))
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error(error)
-      } else {
-        console.error(error)
-      }
-    }
+    dispatch(setLoadingTrueActionCreator())
+    await dispatch(asyncGetTicketWithFavDestination(favoriteDestination))
+    dispatch(setLoadingFalseActionCreator())
   }
 
   const changeFavoriteDestination = (value: string): void => {
@@ -103,17 +160,28 @@ const Home = (): ReactElement => {
   }
 
   const formatDate = (date: Date | null = null): string => {
-    if (date === null) {
-      return ''
-    } else {
+    if (date instanceof Date) {
       return `${date.getFullYear()}-${date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1}-${date.getDate() < 10 ? `0${date.getDate()}` : date.getDate()}`
+    } else {
+      return ''
     }
   }
 
   const searchFlight = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault()
     const total = adult + child + baby
-    void router.push(`/search?departureCity=${departureCity}&arrivalCity=${arrivalCity}&classSeat=${classSeat}&total=${total}&departureDate=${formatDate(departureDate)}&arrivalDate=${formatDate(arrivalDate)}&isRoundTrip=${isRoundTrip}`)
+    if (departureCity === '') {
+      dispatch(setMessageActionCreator({ error: true, text: 'Silahkan Pilih Kota Asal' }))
+      setIsNotificationMessageShowed(true)
+    } else if (arrivalCity === '') {
+      dispatch(setMessageActionCreator({ error: true, text: 'Silahkan Pilih Kota Tujuan' }))
+      setIsNotificationMessageShowed(true)
+    } else {
+      void router.push(`/search?departureCity=${departureCity}&arrivalCity=${arrivalCity}&classSeat=${classSeat}&total=${total}&departureDate=${formatDate(departureDate)}&returnDate=${formatDate(returnDate)}&isRoundTrip=${isRoundTrip}`)
+    }
+    setTimeout(() => {
+      setIsNotificationMessageShowed(false)
+    }, 2500)
   }
 
   const handleSwapCities = (): void => {
@@ -125,13 +193,54 @@ const Home = (): ReactElement => {
   const togglePassenger = (): void => {
     setShowPassenger(!showPassenger)
   }
+
   const handleClosePassenger = (): void => {
     setShowPassenger(false)
   }
+
   const handleSave = (): void => {
     const total = adult + child + baby
     setTotalPassenger(total)
     togglePassenger()
+  }
+
+  const fetchFavoriteDestionation = async (): Promise<void> => {
+    const { data } = await api.fetchCityOptions(false)
+    setFavoriteDestinationOptions(data.split(','))
+  }
+
+  const fetchCityOptions = async (isDeparture: boolean): Promise<void> => {
+    setIsDepartureCity(isDeparture)
+    const { data } = await api.fetchCityOptions(isDeparture)
+    setCityOptions(data.split(','))
+    setIsSearchCityModalShowed(true)
+  }
+
+  const selectCity = (value: string, isDeparture: boolean): void => {
+    setCityInput('')
+    if (isDeparture) {
+      setDepartureCity(value)
+    } else {
+      setArrivalCity(value)
+    }
+    setIsSearchCityModalShowed(false)
+  }
+
+  const onChangeSearchCityModalShowed = (param: boolean): void => {
+    setIsSearchCityModalShowed(param)
+  }
+
+  const onChangeCityInput = (param: string): void => {
+    setCityInput(param)
+  }
+
+  const search = (data: string[]): string[] => {
+    return data.filter(item => item.toLowerCase().match(cityInput.toLowerCase()) !== null)
+  }
+
+  const selectClassSeat = (param: string): void => {
+    setClassSeat(param)
+    setShowClassSeat(false)
   }
 
   return (
@@ -140,191 +249,151 @@ const Home = (): ReactElement => {
         <title>Flynar</title>
       </Head>
       <div id='home-page'>
-        <Header isLoggedIn={isLoggedIn} login={login}/>
-        <main className=''>
-          <div>
-            <div className='flex justify-center relative w-full'>
-              <div className='w-4/5 absolute h-[232px] top-[32px] bg-no-repeat bg-right rounded-[20px] hidden xl:block lg:block md:block sm:hidden' style={{ backgroundImage: 'url("/images/bgRumahadat.png")' }}></div>
-              <div className='hidden items-center w-4/5 absolute h-[232px] top-[32px] rounded-[20px] bg-gradient-to-r from-[#FFF0DC] via-[#FFF8ED] to-transparent xl:flex lg:flex md:flex sm:hidden'>
-                <p className='ml-5 font-bold text-3xl leading-9'>
-                  <i>Welcome to </i>
-                  <span className='text-blue-700'>Flynar</span>
-                </p>
-              </div>
-              <div className='flex items-center h-[150px] w-full bg-gradient-to-r from-blue-400 to-blue-300 mt-0 xl:mt-[64px] lg:mt-[64px] md:mt-[64px]'>
-                <p className='block ml-5 font-bold text-xl leading-9 xl:hidden lg:hidden md:hidden sm:block sm:ml-[10%]'>
-                  <i>Welcome to </i>
-                  <span className='text-slate-100'>Flynar</span>
-                </p>
-              </div>
+        <Header isLoggedIn={authUser} login={login}/>
+        <main className='pb-8'>
+          <div className='banner flex rounded-3xl overflow-hidden my-8 h-32'>
+            <div className='welcome w-1/2 items-center flex'>
+              <h1 className='w-full font-bold italic text-3xl text-center '>Welcome to <span className='text-blue-900'>Flynar</span></h1>
             </div>
-            <div className='flex justify-center relative'>
-              <div className='-top-[55px] absolute w-[90%] xl:top-0 xl:w-[70%] lg:top-0 lg:w-[70%] md:top-0 md:w-[70%] sm:-top-[45px] sm:w-[70%]'>
-                <form onSubmit={(e) => { searchFlight(e) }} action=''>
-                  <div className='container bg-white p-5 shadow-md rounded-t-lg'>
-                    <p className='text-xs font-bold leading-9 mb-5 xl:text-2xl lg:text-xl md:text-lg sm:text-sm'>
-                      Pilih Jadwal Penerbangan Spesial di
-                      <span className='text-blue-700'> Flynar!</span>
-                    </p>
-                    <div className='flex flex-col relative xl:flex-row xl:justify-between lg:relative lg:flex-col lg:items-center md:relative md:flex-col md:items-center sm:relative sm:flex-col sm:items-center'>
-                      <div className='flex items-center'>
-                        <div className='flex items-center text-gray-400 mr-3 w-[65px]'>
-                          <FontAwesomeIcon icon={faPlaneDeparture} className='mr-2 w-[20px]' />
-                          <label htmlFor='from' className='font-normal text-sm leading-5'>From</label>
-                        </div>
-                        <div className='w-5/6 border-b-2 border-gray-400 py-3 xl:w-[300px] xl:z-10 lg:w-[600px] md:w-[400px] sm:w-[300px]'>
-                          <select className='focus:outline-none' id='from' value={departureCity} onChange={e => { setDepartureCity(e.target.value) }}>
-                            {Object.entries(cities).map((city, index) => (
-                              <option className='text-base' key={index} value={city[1]}>{city[0]}</option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                      <div className='w-full flex justify-end absolute top-1/2 transform -translate-y-1/2 xl:w-full xl:justify-center lg:absolute lg:top-1/2 lg:transform lg:-translate-y-1/2 lg:w-[700px] lg:flex lg:justify-end md:absolute md:top-1/2 md:transform md:-translate-y-1/2 md:w-[500px] md:flex md:justify-end sm:absolute sm:top-1/2 sm:transform sm:-translate-y-1/2 sm:w-[400px] sm:flex sm:justify-end'>
-                        <div onClick={handleSwapCities} className='flex items-center justify-center cursor-pointer bg-blue-700 rounded-md border-none w-6 h-6 md:h-7 md:w-7 lg:h-8 lg:w-8'>
-                          <FontAwesomeIcon icon={faRetweet} className='text-white p-1 w-6 md:w-7 lg:w-8' />
-                        </div>
-                      </div>
-                      <div className='flex items-center'>
-                        <div className='flex items-center text-gray-400 mr-3 w-[65px]'>
-                          <FontAwesomeIcon icon={faPlaneDeparture} className='mr-2 w-[20px]' />
-                          <label htmlFor='to' className='font-normal text-sm leading-5'>To</label>
-                        </div>
-                        <div className='w-5/6 border-b-2 border-gray-400 py-3 xl:w-[300px] xl:z-10 lg:w-[600px] md:w-[400px] sm:w-[300px]'>
-                          <select className='focus:outline-none' id='to' value={arrivalCity} onChange={e => { setArrivalCity(e.target.value) }}>
-                            {Object.entries(cities).map((city, index) => (
-                              <option className='text-base' key={index} value={city[1]}>{city[0]}</option>
-                            ))}
-                          </select>
+            <Image src='/images/banner.png' width={745} height={232} quality={100} priority={true} alt='Banner' className='w-1/2 h-full object-cover'/>
+          </div>
+          <div className='container mx-auto'>
+            <div className='rounded-2xl border'>
+              <form onSubmit={(e) => { searchFlight(e) }} action=''>
+                <div className='p-8'>
+                  <p className='font-semibold text-xl mb-6'>Pilih Jadwal Penerbangan Spesial di<span className='text-blue-600'> Flynar!</span></p>
+                  <div className='flex mb-8'>
+                    <div className='flex basis-full'>
+                      <div className='flex items-center gap-x-8 w-full'>
+                        <label htmlFor='from' className='flex items-center gap-x-3'>
+                          <FaPlaneDeparture className='w-6 h-6 text-gray-500' />
+                          <span className='text-gray-500 text-sm'>From</span>
+                        </label>
+                        <div onClick={() => { void fetchCityOptions(true) }} className='cursor-pointer border-b-2 pb-2 font-medium text-lg basis-full'>
+                          <p>{departureCity === '' ? 'Pilih Kota' : departureCity}</p>
                         </div>
                       </div>
                     </div>
-                    <div className='flex flex-col mt-4 xl:justify-between xl:flex-row lg:items-center lg:flex-col md:items-center md:flex-col sm:items-center sm:flex-col'>
-                      <div className='flex items-center'>
-                        <div className='flex items-center text-gray-400 mr-3 w-[65px]'>
-                          <FontAwesomeIcon icon={faCalendarDays} className='me-2 text-lg w-[20px]'/>
-                          <p className='font-normal text-sm leading-5'>Date</p>
+                    <div className='flex items-center justify-center mx-6'>
+                      <AiOutlineSwap onClick={handleSwapCities} className='cursor-pointer w-8 h-8' />
+                    </div>
+                    <div className='flex basis-full'>
+                      <div className='flex items-center gap-x-8 w-full'>
+                        <label htmlFor='to' className='grid grid-cols-2 items-center gap-x-3 w-20'>
+                          <FaPlaneArrival className='w-6 h-6 text-gray-500' />
+                          <span className='text-gray-500 text-sm'>To</span>
+                        </label>
+                        <div onClick={() => { void fetchCityOptions(false) }} className='cursor-pointer border-b-2 pb-2 font-medium text-lg basis-full'>
+                          <p>{arrivalCity === '' ? 'Pilih Kota' : arrivalCity}</p>
                         </div>
-                        <div className='flex flex-col w-5/6 xl:w-[300px] xl:justify-between xl:flex-row lg:w-[600px] lg:justify-between lg:flex-row md:w-[400px] md:justify-between md:flex-row sm:w-[300px] sm:items-center sm:flex-col'>
-                          <div className='mb-2 border-b-2 border-gray-400 xl:w-[49%] xl:z-10 lg:w-[49%] md:w-[49%] sm:w-[100%]'>
-                            <div>
-                              <label htmlFor='departureDate' className='text-gray-400 font-normal text-base leading-6'>Departure</label>
+                      </div>
+                    </div>
+                    <CitySearchModal isSearchCityModalShowed={isSearchCityModalShowed} onChangeSearchCityModalShowed={onChangeSearchCityModalShowed} cityInput={cityInput} onChangeCityInput={onChangeCityInput} cities={search(cityOptions)} selectCity={selectCity} isDepartureCity={isDepartureCity}/>
+                  </div>
+                  <div className='flex'>
+                    <div className='flex basis-full'>
+                      <div className='flex items-center gap-x-8 w-full'>
+                        <label htmlFor='to' className='flex items-center gap-x-3'>
+                          <FaRegCalendarAlt className='w-6 h-6 text-gray-500' />
+                          <span className='text-gray-500 text-sm'>Date</span>
+                        </label>
+                        <div className='font-medium text-lg basis-full grid justify-center gap-x-6 grid-cols-2'>
+                          <div className='flex flex-col justify-between'>
+                            <div className='basis-full flex items-center mb-1'>
+                              <label htmlFor='departureDate' className='text-gray-500 text-base'>Departure</label>
                             </div>
                             <DatePicker
                               id='departureDate'
-                              className='border-0 bg-transparent focus:outline-none cursor-pointer w-[80%] py-3'
+                              className='border-b-2 pb-2 w-full cursor-pointer'
                               selected={departureDate}
                               onChange={(date: Date) => { setDepartureDate(date) }}
                             />
                           </div>
-                          <div className='mb-2 border-b-2 border-gray-400 xl:w-[49%] xl:z-10 lg:w-[49%] md:w-[49%] sm:w-[100%]'>
-                            <div className='flex items center'>
-                              <label htmlFor='arrivalDate' className='mr-2 text-gray-400 font-normal text-base leading-6'>Return</label>
-                              <input type='checkbox' onChange={handleIsRoundTripChange}></input>
+                          <div className='flex flex-col justify-between'>
+                            <div className='basis-full flex items-center mb-1'>
+                              <label htmlFor='returnDate' className='text-gray-500 text-base'>Return</label>
+                              <Switch value={isRoundTrip} onChange={handleIsRoundTripChange} />
                             </div>
                             <DatePicker
-                              id='arrivalDate'
-                              className='border-0 bg-transparent focus:outline-none cursor-pointer w-[80%] py-3'
-                              selected={arrivalDate}
-                              onChange={(date: Date) => { setArrivalDate(date) }}
+                              id='returnDate'
+                              className='border-b-2 pb-2 w-full cursor-pointer'
+                              selected={returnDate}
+                              onChange={(date: Date) => { setReturnDate(date) }}
                               disabled={!isRoundTrip}
                             />
                           </div>
                         </div>
                       </div>
-                      <div>
-                        <div className='flex items-center'>
-                          <div className='inputanFlight w-[65px] flex text-gray-400 me-3'>
-                            <FontAwesomeIcon icon={faCouch} className='mr-2 w-[20px]' />
-                            <label htmlFor='to' className='font-normal text-sm leading-5'>To</label>
+                    </div>
+                    <div className='flex items-center justify-center mx-6'>
+                      <AiOutlineSwap className='cursor-pointer w-8 h-8 opacity-0' />
+                    </div>
+                    <div className='flex basis-full'>
+                      <div className='flex items-center gap-x-8 w-full'>
+                        <label htmlFor='to' className='grid grid-cols-2 items-center gap-x-3 w-20'>
+                          <FaCouch className='w-6 h-6 text-gray-500' />
+                          <span className='text-gray-500 text-sm'>Seats</span>
+                        </label>
+                        <div className='font-medium text-lg basis-full grid justify-center gap-x-6 grid-cols-2'>
+                          <div className='flex flex-col justify-between relative'>
+                            <label htmlFor='to' className='basis-full flex items-center mb-1'>
+                              <span className='text-gray-500 text-base'>Passengers</span>
+                            </label>
+                            <div onClick={() => { togglePassenger() }} className='cursor-pointer border-b-2 pb-2 font-medium text-lg basis-full'>
+                              <p>{totalPassenger} Penumpang</p>
+                            </div>
+                            <PassengersModal togglePassenger={togglePassenger} totalPassenger={totalPassenger} showPassenger={showPassenger} handleClosePassenger={handleClosePassenger} adult={adult} setAdult={setAdult} child={child} setChild={setChild} baby={baby} setBaby={setBaby} handleSave={handleSave} />
                           </div>
-                          <div className='flex flex-col w-5/6 xl:w-[300px] xl:justify-between xl:flex-row lg:w-[600px] lg:justify-between lg:flex-row md:w-[400px] md:justify-between md:flex-row sm:w-[300px] sm:items-center sm:flex-col'>
-                            <div className='mb-2 border-b-2 border-gray-400 xl:w-[49%] lg:w-[49%] md:w-[49%] sm:w-[100%]'>
-                              <p className='text-gray-400 font-normal text-base leading-6'>Passengers</p>
-                              <div className='py-3 relative'>
-                                <span onClick={togglePassenger} className='cursor-pointer'>{totalPassenger} Penumpang</span>
-                                {showPassenger && (
-                                  <div className='bg-white rounded-md shadow-md absolute w-full'>
-                                    <div className='relative'>
-                                      <div className='w-fit px-0.5 rounded-full bg-slate-300 hover:bg-slate-200 absolute -top-2 -right-2'>
-                                        <FontAwesomeIcon icon={faTimes} className='cursor-pointer w-3 text-semibold text-red-600 hover:text-red-800' onClick={handleClosePassenger} />
-                                      </div>
-                                    </div>
-                                    <div className='w-full flex justify-between p-2'>
-                                      <label htmlFor='adult'>Adult</label>
-                                      <input className='w-[45px] pl-2 border-2 border-gray-300 rounded-lg' type='number' id='adult' value={adult} onChange={(e) => { setAdult(parseInt(e.target.value)) }}/>
-                                    </div>
-                                    <div className='w-full flex justify-between p-2'>
-                                      <label htmlFor='child'>Child</label>
-                                      <input className='w-[45px] pl-2 border-2 border-gray-300 rounded-lg' type='number' id='child' value={child} onChange={(e) => { setChild(parseInt(e.target.value)) }}/>
-                                    </div>
-                                    <div className='w-full flex justify-between p-2'>
-                                      <label htmlFor='baby'>Baby</label>
-                                      <input className='w-[45px] pl-2 border-2 border-gray-300 rounded-lg' type='number' id='baby' value={baby} onChange={(e) => { setBaby(parseInt(e.target.value)) }}/>
-                                    </div>
-                                    <div className='flex justify-end'>
-                                      <button className='p-1 m-1 text-sm text-white bg-blue-700 rounded-lg' onClick={handleSave}>
-                                          simpan
-                                      </button>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
+                          <div className='flex flex-col justify-between relative'>
+                            <label htmlFor='to' className='basis-full flex items-center mb-1'>
+                              <span className='text-gray-500 text-base'>Seat Class</span>
+                            </label>
+                            <div onClick={() => { setShowClassSeat(true) }} className='cursor-pointer border-b-2 pb-2 font-medium text-lg basis-full'>
+                              <p>{classSeat}</p>
                             </div>
-                            <div className='mb-2 border-b-2 border-gray-400 xl:w-[49%] lg:w-[49%] md:w-[49%] sm:w-[100%]'>
-                              <label htmlFor='classSeat' className='text-gray-400 font-normal text-base leading-6'>Seat Class</label>
-                              <div className='py-3'>
-                                <select className='w-[103px] focus:outline-none' name='classSeat' id='classSeat' value={classSeat} onChange={e => { setClassSeat(e.target.value) }}>
-                                  <option value='Economy'>Economy</option>
-                                  <option value='Premium Economy'>Premium Economy</option>
-                                  <option value='Business'>Business</option>
-                                  <option value='First Class'>First Class</option>
-                                </select>
-                              </div>
-                            </div>
+                            <ClassSeatModal showClassSeat={showClassSeat} setShowClassSeat={setShowClassSeat} classSeat={classSeat} selectClassSeat={selectClassSeat} />
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div>
-                    <button type='submit' className='w-full px-4 py-2 text-white font-bold text-base leading-6 bg-blue-700 rounded-b-lg'>
-                      Cari Penerbangan
-                    </button>
-                  </div>
-                </form>
-                <div className='mt-6'>
-                  <div className=''>
-                    <p className='font-bold text-lg leading-6 mb-2'>Destinasi Favorit</p>
-                    <div>
-                      <button className='text-sm lg:text-base mr-3 mb-3 px-2 lg:px-3 py-1 lg:py-2 shadow rounded-lg bg-blue-200 text-gray-500' onClick={() => { changeFavoriteDestination('') }} value={''}>Semua</button>
-                      {Object.entries(cities).map((city, index) => (
-                        <button className='text-sm lg:text-base mr-3 mb-3 px-2 lg:px-3 py-1 lg:py-2 shadow rounded-lg bg-blue-200 text-gray-500' onClick={() => { changeFavoriteDestination(city[1]) }} key={index} value={city[1]}>{city[0]}</button>
-                      ))}
-                    </div>
-                    <div className='mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 justify-start gap-6'>
-                      {
-                        tickets.map((ticket: any, index) => (
-                          <div key={index} className='card p-2 h-fit shadow-sm w-full border-2 rounded-md'>
-                            <Image src={`/images/destination/${ticket.flight.arrivalCity}.jpg`} width={200} height={200} loading='lazy' alt={ticket.flight.arrivalCity} className='w-full rounded-lg'/>
-                            <div className='text-sm font-semibold'>
-                              <span>{ticket.flight.departureCity} {' '}</span>
-                              <span>{'-> '}</span>
-                              <span>{ticket.flight.arrivalCity}</span>
-                            </div>
-                            <p className='text-sm font-semibold'>{ticket.flight.departureDate}</p>
-                            <p className='font-semibold text-sm text-red-700'>IDR {ticket.price}</p>
-                          </div>
-                        ))
-                      }
-                    </div>
-                  </div>
                 </div>
+                <div>
+                  <button type='submit' className='w-full py-2 font-semibold tracking-wider text-white bg-blue-500'>Cari Penerbangan</button>
+                </div>
+              </form>
+            </div>
+            <div className='mt-8'>
+              <h2 className='mb-4 font-bold text-xl'>Destinasi Favorit</h2>
+              <div className='flex gap-x-4 mb-6'>
+                <button className={`${favoriteDestination === '' ? 'bg-blue-800' : 'bg-blue-600'} flex items-center gap-x-1 hover:bg-blue-700 text-white rounded-xl px-3 py-2 tracking-wider`} onClick={() => { changeFavoriteDestination('') }} value={''}>
+                  <FiSearch />
+                  <span>Semua</span>
+                </button>
+                {favoriteDestinationOptions.map((city, index) => (
+                  <button className={`${favoriteDestination === city ? 'bg-blue-800' : 'bg-blue-600'} flex items-center gap-x-1 hover:bg-blue-700 text-white rounded-xl px-3 py-2 tracking-wider`} onClick={() => { changeFavoriteDestination(city) }} key={index} value={city}>
+                    <FiSearch />
+                    <span>{city}</span>
+                  </button>
+                ))}
+              </div>
+              <div className='grid lg:grid-cols-5 gap-x-4'>
+                {
+                  tickets.map((ticket: any, index) => (
+                    <HomeTicketPreview key={index} ticket={ticket} createCheckout={createCheckout} />
+                  ))
+                }
               </div>
             </div>
           </div>
         </main>
       </div>
+      {
+        isLoading && <Loading />
+      }
+      {
+        <NotificationMessage message={message} isNotificationMessageShowed={isNotificationMessageShowed} />
+      }
     </>
   )
 }

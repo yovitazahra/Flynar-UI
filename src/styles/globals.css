@@ -1,13 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  /* font-family: 'Poppins', sans-serif; */
 }
 
 textarea:focus, input:focus{
@@ -27,7 +25,119 @@ input::-ms-reveal, input::-ms-clear {
   background-size: cover;
 }
 
+/* HOME TICKET PREVIEW */
+.home-ticket-preview .class-seat {
+  filter: drop-shadow(0 1px 1px rgb(255 255 255 / 1)) drop-shadow(0 1px 1px rgb(255 255 255 / 1));
+}
+
+/* BANNER */
+.banner .welcome {
+  background-color: #FFE9CA;
+}
+
+/* LOADER */
 .toggle-password > svg {
   height: 90%;
   width: 90%;
+}
+
+.loader {
+  transform: rotateZ(45deg);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  color: rgb(29 78 216);
+}
+
+.loader:before,
+.loader:after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: inherit;
+  height: inherit;
+  border-radius: 50%;
+  transform: rotateX(70deg);
+  animation: 1s spin linear infinite;
+}
+
+.loader:after {
+  color: rgb(29 78 216);
+  transform: rotateY(70deg);
+  animation-delay: .4s;
+}
+
+@keyframes rotate {
+  0% {
+    transform: translate(-50%, -50%) rotateZ(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotateZ(360deg);
+  }
+}
+
+@keyframes rotateccw {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(-360deg);
+  }
+}
+
+@keyframes spin {
+  0%,
+  100% {
+    box-shadow: .2em 0px 0 0px currentcolor;
+  }
+  12% {
+    box-shadow: .2em .2em 0 0 currentcolor;
+  }
+  25% {
+    box-shadow: 0 .2em 0 0px currentcolor;
+  }
+  37% {
+    box-shadow: -.2em .2em 0 0 currentcolor;
+  }
+  50% {
+    box-shadow: -.2em 0 0 0 currentcolor;
+  }
+  62% {
+    box-shadow: -.2em -.2em 0 0 currentcolor;
+  }
+  75% {
+    box-shadow: 0px -.2em 0 0 currentcolor;
+  }
+  87% {
+    box-shadow: .2em -.2em 0 0 currentcolor;
+  }
+}
+
+/* HOVER IMAGE */
+.hover-zoom-image img {
+  transition: transform .5s;
+}
+
+.hover-zoom-image:hover img {
+  transform: scale(1.05);
+}
+
+/* HIDE ARROW IN NUMBER INPUT */
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* NOTIFICATION MESSAGE */
+.notification-message {
+  box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
 }
