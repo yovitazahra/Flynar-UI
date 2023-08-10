@@ -16,10 +16,12 @@ import Loading from '@/components/Loading'
 import CitySearchModal from '@/components/CitySearchModal'
 import PassengersModal from '@/components/PassengersModal'
 import ClassSeatModal from '@/components/ClassSeatModal'
+import NotificationMessage from '@/components/NotificationMessage'
 import type { RootState } from '@/store/index'
 import { asyncSetAuthUser } from '@/store/authUser/action'
 import { asyncGetTicketWithFavDestination } from '@/store/tickets/action'
 import { asyncCreateCheckoutHomePage } from '@/store/checkout/action'
+import { setMessageActionCreator } from '@/store/message/action'
 import { setLoadingTrueActionCreator, setLoadingFalseActionCreator } from '@/store/isLoading/action'
 import api from '@/utils/api'
 
@@ -27,12 +29,12 @@ const Home = (): ReactElement => {
   const dispatch = useDispatch()
   const router = useRouter()
 
-  // const message: Record<string, any> | null = useSelector((state: RootState) => state.message)
+  const message: Record<string, any> | null = useSelector((state: RootState) => state.message)
   const authUser: Record<string, any> | null = useSelector((state: RootState) => state.authUser)
   const isLoading: boolean = useSelector((state: RootState) => state.isLoading)
   const tickets: [] = useSelector((state: RootState) => state.tickets)
 
-  const cities = { Jakarta: 'Jakarta', Medan: 'Medan', Makassar: 'Makassar', Surabaya: 'Surabaya', Denpasar: 'Denpasar' }
+  const [isNotificationMessageShowed, setIsNotificationMessageShowed] = useState(false)
   const [departureCity, setDepartureCity] = useState('')
   const [arrivalCity, setArrivalCity] = useState('')
   const [departureDate, setDepartureDate] = useState<SetStateAction<any>>(new Date())
@@ -46,6 +48,7 @@ const Home = (): ReactElement => {
   const [classSeat, setClassSeat] = useState('Economy')
   const [isRoundTrip, setIsRoundTrip] = useState(false)
   const [favoriteDestination, setFavoriteDestination] = useState('')
+  const [favoriteDestinationOptions, setFavoriteDestinationOptions] = useState([])
   const [isSearchCityModalShowed, setIsSearchCityModalShowed] = useState(false)
   const [cityOptions, setCityOptions] = useState([])
   const [cityInput, setCityInput] = useState('')
@@ -53,6 +56,7 @@ const Home = (): ReactElement => {
 
   useEffect(() => {
     void fetchTickets()
+    void fetchFavoriteDestionation()
     if (authUser === null) {
       dispatch(asyncSetAuthUser({ identifier: '', password: '' }))
     }
@@ -63,6 +67,18 @@ const Home = (): ReactElement => {
       setReturnDate(departureDate)
     }
   }, [departureDate])
+
+  useEffect(() => {
+    if (departureCity !== '' && departureCity === arrivalCity) {
+      setArrivalCity('')
+    }
+  }, [departureCity])
+
+  useEffect(() => {
+    if (arrivalCity !== '' && arrivalCity === departureCity) {
+      setDepartureCity('')
+    }
+  }, [arrivalCity])
 
   useEffect(() => {
     if (returnDate < departureDate && isRoundTrip) {
@@ -154,7 +170,18 @@ const Home = (): ReactElement => {
   const searchFlight = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault()
     const total = adult + child + baby
-    void router.push(`/search?departureCity=${departureCity}&arrivalCity=${arrivalCity}&classSeat=${classSeat}&total=${total}&departureDate=${formatDate(departureDate)}&returnDate=${formatDate(returnDate)}&isRoundTrip=${isRoundTrip}`)
+    if (departureCity === '') {
+      dispatch(setMessageActionCreator({ error: true, text: 'Silahkan Pilih Kota Asal' }))
+      setIsNotificationMessageShowed(true)
+    } else if (arrivalCity === '') {
+      dispatch(setMessageActionCreator({ error: true, text: 'Silahkan Pilih Kota Tujuan' }))
+      setIsNotificationMessageShowed(true)
+    } else {
+      void router.push(`/search?departureCity=${departureCity}&arrivalCity=${arrivalCity}&classSeat=${classSeat}&total=${total}&departureDate=${formatDate(departureDate)}&returnDate=${formatDate(returnDate)}&isRoundTrip=${isRoundTrip}`)
+    }
+    setTimeout(() => {
+      setIsNotificationMessageShowed(false)
+    }, 2500)
   }
 
   const handleSwapCities = (): void => {
@@ -175,6 +202,11 @@ const Home = (): ReactElement => {
     const total = adult + child + baby
     setTotalPassenger(total)
     togglePassenger()
+  }
+
+  const fetchFavoriteDestionation = async (): Promise<void> => {
+    const { data } = await api.fetchCityOptions(false)
+    setFavoriteDestinationOptions(data.split(','))
   }
 
   const fetchCityOptions = async (isDeparture: boolean): Promise<void> => {
@@ -338,10 +370,10 @@ const Home = (): ReactElement => {
                   <FiSearch />
                   <span>Semua</span>
                 </button>
-                {Object.entries(cities).map((city, index) => (
-                  <button className={`${favoriteDestination === city[1] ? 'bg-blue-800' : 'bg-blue-600'} flex items-center gap-x-1 hover:bg-blue-700 text-white rounded-xl px-3 py-2 tracking-wider`} onClick={() => { changeFavoriteDestination(city[1]) }} key={index} value={city[1]}>
+                {favoriteDestinationOptions.map((city, index) => (
+                  <button className={`${favoriteDestination === city ? 'bg-blue-800' : 'bg-blue-600'} flex items-center gap-x-1 hover:bg-blue-700 text-white rounded-xl px-3 py-2 tracking-wider`} onClick={() => { changeFavoriteDestination(city) }} key={index} value={city}>
                     <FiSearch />
-                    <span>{city[0]}</span>
+                    <span>{city}</span>
                   </button>
                 ))}
               </div>
@@ -358,6 +390,9 @@ const Home = (): ReactElement => {
       </div>
       {
         isLoading && <Loading />
+      }
+      {
+        <NotificationMessage message={message} isNotificationMessageShowed={isNotificationMessageShowed} />
       }
     </>
   )
