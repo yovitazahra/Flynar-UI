@@ -3,13 +3,14 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import Image from 'next/image'
-import DatePicker from 'react-datepicker'
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { AiOutlineSwap } from 'react-icons/ai'
 import { FaPlaneDeparture, FaPlaneArrival, FaRegCalendarAlt, FaCouch } from 'react-icons/fa'
 import { FiSearch } from 'react-icons/fi'
 import Switch from '@mui/material/Switch'
-import 'react-datepicker/dist/react-datepicker.css'
 import DefaultLayout from '@/layouts/default'
+import dayjs from 'dayjs'
 import Header from '@/components/Header'
 import HomeTicketPreview from '@/components/HomeTicketPreview'
 import Loading from '@/components/Loading'
@@ -37,8 +38,8 @@ const Home = (): ReactElement => {
   const [isNotificationMessageShowed, setIsNotificationMessageShowed] = useState(false)
   const [departureCity, setDepartureCity] = useState('')
   const [arrivalCity, setArrivalCity] = useState('')
-  const [departureDate, setDepartureDate] = useState<SetStateAction<any>>(new Date())
-  const [returnDate, setReturnDate] = useState<SetStateAction<any>>(new Date())
+  const [departureDate, setDepartureDate] = useState<SetStateAction<any>>(dayjs())
+  const [returnDate, setReturnDate] = useState<SetStateAction<any>>(dayjs().add(1, 'day'))
   const [adult, setAdult] = useState(1)
   const [child, setChild] = useState(0)
   const [baby, setBaby] = useState(0)
@@ -63,10 +64,16 @@ const Home = (): ReactElement => {
   }, [])
 
   useEffect(() => {
-    if (returnDate <= departureDate && isRoundTrip) {
-      setReturnDate(departureDate)
+    if (returnDate <= departureDate) {
+      setReturnDate(dayjs(departureDate).add(1, 'day'))
     }
   }, [departureDate])
+
+  useEffect(() => {
+    if (returnDate <= departureDate) {
+      setDepartureDate(dayjs(returnDate).subtract(1, 'day'))
+    }
+  }, [returnDate])
 
   useEffect(() => {
     if (departureCity !== '' && departureCity === arrivalCity) {
@@ -79,22 +86,6 @@ const Home = (): ReactElement => {
       setDepartureCity('')
     }
   }, [arrivalCity])
-
-  useEffect(() => {
-    if (returnDate < departureDate && isRoundTrip) {
-      setDepartureDate(returnDate)
-    }
-  }, [returnDate])
-
-  useEffect(() => {
-    if (!isRoundTrip) {
-      setReturnDate('')
-    } else {
-      if (returnDate === '') {
-        setReturnDate(departureDate)
-      }
-    }
-  }, [isRoundTrip])
 
   useEffect(() => {
     void fetchTickets()
@@ -247,155 +238,156 @@ const Home = (): ReactElement => {
 
   return (
     <>
-      <Head>
-        <title>Flynar</title>
-      </Head>
-      <div id='home-page'>
-        <Header isLoggedIn={authUser} login={login}/>
-        <main className='pb-8'>
-          <div className='banner flex rounded-3xl overflow-hidden my-8 h-32'>
-            <div className='welcome w-1/2 items-center flex'>
-              <h1 className='w-full font-bold italic text-3xl text-center '>Welcome to <span className='text-blue-900'>Flynar</span></h1>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <Head>
+          <title>Flynar</title>
+        </Head>
+        <div id='home-page'>
+          <Header isLoggedIn={authUser} login={login}/>
+          <main className='pb-8'>
+            <div className='banner flex rounded-3xl overflow-hidden my-8 h-32'>
+              <div className='welcome w-1/2 items-center flex'>
+                <h1 className='w-full font-bold italic text-3xl text-center '>Welcome to <span className='text-blue-900'>Flynar</span></h1>
+              </div>
+              <Image src='/images/banner.png' width={745} height={232} quality={100} priority={true} alt='Banner' className='w-1/2 h-full object-cover'/>
             </div>
-            <Image src='/images/banner.png' width={745} height={232} quality={100} priority={true} alt='Banner' className='w-1/2 h-full object-cover'/>
-          </div>
-          <div className='container mx-auto'>
-            <div className='rounded-2xl border'>
-              <form onSubmit={(e) => { searchFlight(e) }} action=''>
-                <div className='p-8'>
-                  <p className='font-semibold text-xl mb-6'>Pilih Jadwal Penerbangan Spesial di<span className='text-blue-600'> Flynar!</span></p>
-                  <div className='flex mb-8'>
-                    <div className='flex basis-full'>
-                      <div className='flex items-center gap-x-8 w-full'>
-                        <label htmlFor='from' className='flex items-center gap-x-3'>
-                          <FaPlaneDeparture className='w-6 h-6 text-gray-500' />
-                          <span className='text-gray-500 text-sm'>From</span>
-                        </label>
-                        <div onClick={() => { void fetchCityOptions(true) }} className='cursor-pointer border-b-2 pb-2 font-medium text-lg basis-full'>
-                          <p>{departureCity === '' ? 'Pilih Kota' : departureCity}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className='flex items-center justify-center mx-6'>
-                      <AiOutlineSwap onClick={handleSwapCities} className='cursor-pointer w-8 h-8' />
-                    </div>
-                    <div className='flex basis-full'>
-                      <div className='flex items-center gap-x-8 w-full'>
-                        <label htmlFor='to' className='grid grid-cols-2 items-center gap-x-3 w-20'>
-                          <FaPlaneArrival className='w-6 h-6 text-gray-500' />
-                          <span className='text-gray-500 text-sm'>To</span>
-                        </label>
-                        <div onClick={() => { void fetchCityOptions(false) }} className='cursor-pointer border-b-2 pb-2 font-medium text-lg basis-full'>
-                          <p>{arrivalCity === '' ? 'Pilih Kota' : arrivalCity}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <CitySearchModal isSearchCityModalShowed={isSearchCityModalShowed} onChangeSearchCityModalShowed={onChangeSearchCityModalShowed} cityInput={cityInput} onChangeCityInput={onChangeCityInput} cities={search(cityOptions)} selectCity={selectCity} isDepartureCity={isDepartureCity}/>
-                  </div>
-                  <div className='flex'>
-                    <div className='flex basis-full'>
-                      <div className='flex items-center gap-x-8 w-full'>
-                        <label htmlFor='to' className='flex items-center gap-x-3'>
-                          <FaRegCalendarAlt className='w-6 h-6 text-gray-500' />
-                          <span className='text-gray-500 text-sm'>Date</span>
-                        </label>
-                        <div className='font-medium text-lg basis-full grid justify-center gap-x-6 grid-cols-2'>
-                          <div className='flex flex-col justify-between'>
-                            <div className='basis-full flex items-center mb-1'>
-                              <label htmlFor='departureDate' className='text-gray-500 text-base'>Departure</label>
-                            </div>
-                            <DatePicker
-                              id='departureDate'
-                              className='border-b-2 pb-2 w-full cursor-pointer'
-                              selected={departureDate}
-                              onChange={(date: Date) => { setDepartureDate(date) }}
-                            />
-                          </div>
-                          <div className='flex flex-col justify-between'>
-                            <div className='basis-full flex items-center mb-1'>
-                              <label htmlFor='returnDate' className='text-gray-500 text-base'>Return</label>
-                              <Switch value={isRoundTrip} onChange={handleIsRoundTripChange} />
-                            </div>
-                            <DatePicker
-                              id='returnDate'
-                              className='border-b-2 pb-2 w-full cursor-pointer'
-                              selected={returnDate}
-                              onChange={(date: Date) => { setReturnDate(date) }}
-                              disabled={!isRoundTrip}
-                            />
+            <div className='container mx-auto'>
+              <div className='rounded-2xl border'>
+                <form onSubmit={(e) => { searchFlight(e) }} action=''>
+                  <div className='p-8'>
+                    <p className='font-semibold text-xl mb-6'>Pilih Jadwal Penerbangan Spesial di<span className='text-blue-600'> Flynar!</span></p>
+                    <div className='flex mb-8'>
+                      <div className='flex basis-full'>
+                        <div className='flex items-center gap-x-8 w-full'>
+                          <label htmlFor='from' className='flex items-center gap-x-3'>
+                            <FaPlaneDeparture className='w-6 h-6 text-gray-500' />
+                            <span className='text-gray-500 text-sm'>From</span>
+                          </label>
+                          <div onClick={() => { void fetchCityOptions(true) }} className='cursor-pointer border-b-2 pb-2 font-medium text-lg basis-full'>
+                            <p>{departureCity === '' ? 'Pilih Kota' : departureCity}</p>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div className='flex items-center justify-center mx-6'>
-                      <AiOutlineSwap className='cursor-pointer w-8 h-8 opacity-0' />
-                    </div>
-                    <div className='flex basis-full'>
-                      <div className='flex items-center gap-x-8 w-full'>
-                        <label htmlFor='to' className='grid grid-cols-2 items-center gap-x-3 w-20'>
-                          <FaCouch className='w-6 h-6 text-gray-500' />
-                          <span className='text-gray-500 text-sm'>Seats</span>
-                        </label>
-                        <div className='font-medium text-lg basis-full grid justify-center gap-x-6 grid-cols-2'>
-                          <div className='flex flex-col justify-between relative'>
-                            <label htmlFor='to' className='basis-full flex items-center mb-1'>
-                              <span className='text-gray-500 text-base'>Passengers</span>
-                            </label>
-                            <div onClick={() => { togglePassenger() }} className='cursor-pointer border-b-2 pb-2 font-medium text-lg basis-full'>
-                              <p>{totalPassenger} Penumpang</p>
-                            </div>
-                            <PassengersModal togglePassenger={togglePassenger} totalPassenger={totalPassenger} showPassenger={showPassenger} handleClosePassenger={handleClosePassenger} adult={adult} setAdult={setAdult} child={child} setChild={setChild} baby={baby} setBaby={setBaby} handleSave={handleSave} />
+                      <div className='flex items-center justify-center mx-6'>
+                        <AiOutlineSwap onClick={handleSwapCities} className='cursor-pointer w-8 h-8' />
+                      </div>
+                      <div className='flex basis-full'>
+                        <div className='flex items-center gap-x-8 w-full'>
+                          <label htmlFor='to' className='grid grid-cols-2 items-center gap-x-3 w-20'>
+                            <FaPlaneArrival className='w-6 h-6 text-gray-500' />
+                            <span className='text-gray-500 text-sm'>To</span>
+                          </label>
+                          <div onClick={() => { void fetchCityOptions(false) }} className='cursor-pointer border-b-2 pb-2 font-medium text-lg basis-full'>
+                            <p>{arrivalCity === '' ? 'Pilih Kota' : arrivalCity}</p>
                           </div>
-                          <div className='flex flex-col justify-between relative'>
-                            <label htmlFor='to' className='basis-full flex items-center mb-1'>
-                              <span className='text-gray-500 text-base'>Seat Class</span>
-                            </label>
-                            <div onClick={() => { setShowClassSeat(true) }} className='cursor-pointer border-b-2 pb-2 font-medium text-lg basis-full'>
-                              <p>{classSeat}</p>
+                        </div>
+                      </div>
+                      <CitySearchModal isSearchCityModalShowed={isSearchCityModalShowed} onChangeSearchCityModalShowed={onChangeSearchCityModalShowed} cityInput={cityInput} onChangeCityInput={onChangeCityInput} cities={search(cityOptions)} selectCity={selectCity} isDepartureCity={isDepartureCity}/>
+                    </div>
+                    <div className='flex'>
+                      <div className='flex basis-full'>
+                        <div className='flex items-center gap-x-8 w-full'>
+                          <label htmlFor='to' className='flex items-center gap-x-3'>
+                            <FaRegCalendarAlt className='w-6 h-6 text-gray-500' />
+                            <span className='text-gray-500 text-sm'>Date</span>
+                          </label>
+                          <div className='font-medium text-lg basis-full grid justify-center gap-x-6 grid-cols-2'>
+                            <div className='flex flex-col justify-between'>
+                              <div className='basis-full flex items-center mb-1'>
+                                <label htmlFor='departureDate' className='text-gray-500 text-base'>Departure</label>
+                              </div>
+                              <DatePicker
+                                // className='border-b-2 pb-2 w-full cursor-pointer'
+                                value={departureDate}
+                                onChange={(newValue: any) => { setDepartureDate(newValue) }}
+                              />
                             </div>
-                            <ClassSeatModal showClassSeat={showClassSeat} setShowClassSeat={setShowClassSeat} classSeat={classSeat} selectClassSeat={selectClassSeat} />
+                            <div className='flex flex-col justify-between'>
+                              <div className='basis-full flex items-center mb-1'>
+                                <label htmlFor='returnDate' className='text-gray-500 text-base'>Return</label>
+                                <Switch value={isRoundTrip} onChange={handleIsRoundTripChange} />
+                              </div>
+                              <DatePicker
+                              // readOnly={!isRoundTrip}
+                                // className='border-b-2 pb-2 w-full cursor-pointer'
+                                value={returnDate}
+                                onChange={(newValue: any) => { setReturnDate(newValue) }}
+                                readOnly={!isRoundTrip}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className='flex items-center justify-center mx-6'>
+                        <AiOutlineSwap className='cursor-pointer w-8 h-8 opacity-0' />
+                      </div>
+                      <div className='flex basis-full'>
+                        <div className='flex items-center gap-x-8 w-full'>
+                          <label htmlFor='to' className='grid grid-cols-2 items-center gap-x-3 w-20'>
+                            <FaCouch className='w-6 h-6 text-gray-500' />
+                            <span className='text-gray-500 text-sm'>Seats</span>
+                          </label>
+                          <div className='font-medium text-lg basis-full grid justify-center gap-x-6 grid-cols-2'>
+                            <div className='flex flex-col justify-between relative'>
+                              <label htmlFor='to' className='basis-full flex items-center mb-1'>
+                                <span className='text-gray-500 text-base'>Passengers</span>
+                              </label>
+                              <div onClick={() => { togglePassenger() }} className='cursor-pointer border-b-2 pb-2 font-medium text-lg basis-full'>
+                                <p>{totalPassenger} Penumpang</p>
+                              </div>
+                              <PassengersModal togglePassenger={togglePassenger} totalPassenger={totalPassenger} showPassenger={showPassenger} handleClosePassenger={handleClosePassenger} adult={adult} setAdult={setAdult} child={child} setChild={setChild} baby={baby} setBaby={setBaby} handleSave={handleSave} />
+                            </div>
+                            <div className='flex flex-col justify-between relative'>
+                              <label htmlFor='to' className='basis-full flex items-center mb-1'>
+                                <span className='text-gray-500 text-base'>Seat Class</span>
+                              </label>
+                              <div onClick={() => { setShowClassSeat(true) }} className='cursor-pointer border-b-2 pb-2 font-medium text-lg basis-full'>
+                                <p>{classSeat}</p>
+                              </div>
+                              <ClassSeatModal showClassSeat={showClassSeat} setShowClassSeat={setShowClassSeat} classSeat={classSeat} selectClassSeat={selectClassSeat} />
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div>
-                  <button type='submit' className='w-full py-2 font-semibold tracking-wider text-white bg-blue-500'>Cari Penerbangan</button>
-                </div>
-              </form>
-            </div>
-            <div className='mt-8'>
-              <h2 className='mb-4 font-bold text-xl'>Destinasi Favorit</h2>
-              <div className='flex gap-x-4 mb-6'>
-                <button className={`${favoriteDestination === '' ? 'bg-blue-800' : 'bg-blue-600'} flex items-center gap-x-1 hover:bg-blue-700 text-white rounded-xl px-3 py-2 tracking-wider`} onClick={() => { changeFavoriteDestination('') }} value={''}>
-                  <FiSearch />
-                  <span>Semua</span>
-                </button>
-                {favoriteDestinationOptions.map((city, index) => (
-                  <button className={`${favoriteDestination === city ? 'bg-blue-800' : 'bg-blue-600'} flex items-center gap-x-1 hover:bg-blue-700 text-white rounded-xl px-3 py-2 tracking-wider`} onClick={() => { changeFavoriteDestination(city) }} key={index} value={city}>
+                  <div>
+                    <button type='submit' className='w-full py-2 font-semibold tracking-wider text-white bg-blue-500'>Cari Penerbangan</button>
+                  </div>
+                </form>
+              </div>
+              <div className='mt-8'>
+                <h2 className='mb-4 font-bold text-xl'>Destinasi Favorit</h2>
+                <div className='flex gap-x-4 mb-6'>
+                  <button className={`${favoriteDestination === '' ? 'bg-blue-800' : 'bg-blue-600'} flex items-center gap-x-1 hover:bg-blue-700 text-white rounded-xl px-3 py-2 tracking-wider`} onClick={() => { changeFavoriteDestination('') }} value={''}>
                     <FiSearch />
-                    <span>{city}</span>
+                    <span>Semua</span>
                   </button>
-                ))}
-              </div>
-              <div className='grid lg:grid-cols-5 gap-x-4'>
-                {
-                  tickets.map((ticket: any, index) => (
-                    <HomeTicketPreview key={index} ticket={ticket} createCheckout={createCheckout} />
-                  ))
-                }
+                  {favoriteDestinationOptions.map((city, index) => (
+                    <button className={`${favoriteDestination === city ? 'bg-blue-800' : 'bg-blue-600'} flex items-center gap-x-1 hover:bg-blue-700 text-white rounded-xl px-3 py-2 tracking-wider`} onClick={() => { changeFavoriteDestination(city) }} key={index} value={city}>
+                      <FiSearch />
+                      <span>{city}</span>
+                    </button>
+                  ))}
+                </div>
+                <div className='grid lg:grid-cols-5 gap-x-4'>
+                  {
+                    tickets.map((ticket: any, index) => (
+                      <HomeTicketPreview key={index} ticket={ticket} createCheckout={createCheckout} />
+                    ))
+                  }
+                </div>
               </div>
             </div>
-          </div>
-        </main>
-      </div>
-      {
-        isLoading && <Loading />
-      }
-      {
-        <NotificationMessage message={message} isNotificationMessageShowed={isNotificationMessageShowed} />
-      }
+          </main>
+        </div>
+        {
+          isLoading && <Loading />
+        }
+        {
+          <NotificationMessage message={message} isNotificationMessageShowed={isNotificationMessageShowed} />
+        }
+      </LocalizationProvider>
     </>
   )
 }
