@@ -168,6 +168,7 @@ const Home = (): ReactElement => {
   }
 
   const searchFlight = (e: React.FormEvent<HTMLFormElement>): void => {
+    dispatch(setLoadingTrueActionCreator())
     e.preventDefault()
     const total = adult + child + baby
     if (departureCity === '') {
@@ -179,6 +180,7 @@ const Home = (): ReactElement => {
     } else {
       void router.push(`/search?departureCity=${departureCity}&arrivalCity=${arrivalCity}&classSeat=${classSeat}&total=${total}&departureDate=${formatDate(departureDate)}&returnDate=${formatDate(returnDate)}&isRoundTrip=${isRoundTrip}`)
     }
+    dispatch(setLoadingFalseActionCreator())
     setTimeout(() => {
       setIsNotificationMessageShowed(false)
     }, 2500)
